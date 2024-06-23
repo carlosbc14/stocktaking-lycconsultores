@@ -4,9 +4,11 @@ import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
 import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
+import { useTraslations } from '@/Contexts/TranslationsContext';
 import { Head, useForm } from '@inertiajs/react';
 
 export default function ResetPassword({ token, email }) {
+    const { __ } = useTraslations();
     const { data, setData, post, processing, errors, reset } = useForm({
         token: token,
         email: email,
@@ -28,11 +30,11 @@ export default function ResetPassword({ token, email }) {
 
     return (
         <GuestLayout>
-            <Head title="Reset Password" />
+            <Head title={__('Reset Password')} />
 
             <form onSubmit={submit}>
                 <div>
-                    <InputLabel htmlFor="email" value="Email" />
+                    <InputLabel htmlFor="email" value={__('Email')} />
 
                     <TextInput
                         id="email"
@@ -48,7 +50,7 @@ export default function ResetPassword({ token, email }) {
                 </div>
 
                 <div className="mt-4">
-                    <InputLabel htmlFor="password" value="Password" />
+                    <InputLabel htmlFor="password" value={__('Password')} />
 
                     <TextInput
                         id="password"
@@ -65,7 +67,7 @@ export default function ResetPassword({ token, email }) {
                 </div>
 
                 <div className="mt-4">
-                    <InputLabel htmlFor="password_confirmation" value="Confirm Password" />
+                    <InputLabel htmlFor="password_confirmation" value={__('Confirm Password')} />
 
                     <TextInput
                         type="password"
@@ -81,7 +83,7 @@ export default function ResetPassword({ token, email }) {
 
                 <div className="flex items-center justify-end mt-4">
                     <PrimaryButton className="ms-4" disabled={processing}>
-                        Reset Password
+                        {__('Reset Password')}
                     </PrimaryButton>
                 </div>
             </form>
