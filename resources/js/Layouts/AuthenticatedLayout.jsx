@@ -8,6 +8,8 @@ import {
     DropdownMenuTrigger,
     Sheet,
     SheetContent,
+    SheetDescription,
+    SheetTitle,
     SheetTrigger,
 } from '@/Components/ui';
 import { LangSelect, SideBar } from '@/Components';
@@ -34,6 +36,8 @@ export default function Authenticated({ user, title, children }) {
                                     </Button>
                                 </SheetTrigger>
                                 <SheetContent className="p-0" side="left">
+                                    <SheetTitle className="hidden"></SheetTitle>
+                                    <SheetDescription className="hidden"></SheetDescription>
                                     <SideBar className="w-full" />
                                 </SheetContent>
                             </Sheet>
