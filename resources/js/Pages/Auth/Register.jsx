@@ -1,11 +1,9 @@
 import { useEffect } from 'react';
 import GuestLayout from '@/Layouts/GuestLayout';
-import InputError from '@/Components/InputError';
-import InputLabel from '@/Components/InputLabel';
-import PrimaryButton from '@/Components/PrimaryButton';
-import TextInput from '@/Components/TextInput';
+import { Button, Input, Label, buttonVariants } from '@/Components/ui';
+import { InputError } from '@/Components';
 import { useTraslations } from '@/Contexts/TranslationsContext';
-import { Head, Link, useForm } from '@inertiajs/react';
+import { Link, useForm } from '@inertiajs/react';
 
 export default function Register() {
     const { __ } = useTraslations();
@@ -29,14 +27,12 @@ export default function Register() {
     };
 
     return (
-        <GuestLayout>
-            <Head title={__('Register')} />
-
+        <GuestLayout title={__('Register')}>
             <form onSubmit={submit}>
                 <div>
-                    <InputLabel htmlFor="name" value={__('Name')} />
+                    <Label htmlFor="name">{__('Name')}</Label>
 
-                    <TextInput
+                    <Input
                         id="name"
                         name="name"
                         value={data.name}
@@ -47,13 +43,13 @@ export default function Register() {
                         required
                     />
 
-                    <InputError message={errors.name} className="mt-2" />
+                    <InputError message={__(errors.name)} className="mt-2" />
                 </div>
 
                 <div className="mt-4">
-                    <InputLabel htmlFor="email" value={__('Email')} />
+                    <Label htmlFor="email">{__('Email')}</Label>
 
-                    <TextInput
+                    <Input
                         id="email"
                         type="email"
                         name="email"
@@ -64,13 +60,13 @@ export default function Register() {
                         required
                     />
 
-                    <InputError message={errors.email} className="mt-2" />
+                    <InputError message={__(errors.email)} className="mt-2" />
                 </div>
 
                 <div className="mt-4">
-                    <InputLabel htmlFor="password" value={__('Password')} />
+                    <Label htmlFor="password">{__('Password')}</Label>
 
-                    <TextInput
+                    <Input
                         id="password"
                         type="password"
                         name="password"
@@ -81,13 +77,13 @@ export default function Register() {
                         required
                     />
 
-                    <InputError message={errors.password} className="mt-2" />
+                    <InputError message={__(errors.password)} className="mt-2" />
                 </div>
 
                 <div className="mt-4">
-                    <InputLabel htmlFor="password_confirmation" value={__('Confirm Password')} />
+                    <Label htmlFor="password_confirmation">{__('Confirm Password')}</Label>
 
-                    <TextInput
+                    <Input
                         id="password_confirmation"
                         type="password"
                         name="password_confirmation"
@@ -98,20 +94,17 @@ export default function Register() {
                         required
                     />
 
-                    <InputError message={errors.password_confirmation} className="mt-2" />
+                    <InputError message={__(errors.password_confirmation)} className="mt-2" />
                 </div>
 
-                <div className="flex items-center justify-end mt-4">
-                    <Link
-                        href={route('login')}
-                        className="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                    >
-                        {__('Already registered?')}
-                    </Link>
+                <Button className="w-full mt-4" disabled={processing}>
+                    {__('Register')}
+                </Button>
 
-                    <PrimaryButton className="ms-4" disabled={processing}>
-                        {__('Register')}
-                    </PrimaryButton>
+                <div className="flex items-center justify-end mt-4">
+                    <Link href={route('login')} className={`${buttonVariants({ variant: 'link' })} pr-0`}>
+                        {`${__('Already registered?')} ${__('Log in')}`}
+                    </Link>
                 </div>
             </form>
         </GuestLayout>

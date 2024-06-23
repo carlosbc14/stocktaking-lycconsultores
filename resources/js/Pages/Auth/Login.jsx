@@ -1,12 +1,9 @@
 import { useEffect } from 'react';
-import Checkbox from '@/Components/Checkbox';
 import GuestLayout from '@/Layouts/GuestLayout';
-import InputError from '@/Components/InputError';
-import InputLabel from '@/Components/InputLabel';
-import PrimaryButton from '@/Components/PrimaryButton';
-import TextInput from '@/Components/TextInput';
+import { Button, Input, Label, buttonVariants } from '@/Components/ui';
+import { Checkbox, InputError } from '@/Components';
 import { useTraslations } from '@/Contexts/TranslationsContext';
-import { Head, Link, useForm } from '@inertiajs/react';
+import { Link, useForm } from '@inertiajs/react';
 
 export default function Login({ status, canResetPassword }) {
     const { __ } = useTraslations();
@@ -29,16 +26,14 @@ export default function Login({ status, canResetPassword }) {
     };
 
     return (
-        <GuestLayout>
-            <Head title={__('Log in')} />
-
-            {status && <div className="mb-4 font-medium text-sm text-green-600">{status}</div>}
+        <GuestLayout title={__('Log in')}>
+            {status && <div className="mb-4 font-medium text-sm text-green-600">{__(status)}</div>}
 
             <form onSubmit={submit}>
                 <div>
-                    <InputLabel htmlFor="email" value={__('Email')} />
+                    <Label htmlFor="email">{__('Email')}</Label>
 
-                    <TextInput
+                    <Input
                         id="email"
                         type="email"
                         name="email"
@@ -49,13 +44,13 @@ export default function Login({ status, canResetPassword }) {
                         onChange={(e) => setData('email', e.target.value)}
                     />
 
-                    <InputError message={errors.email} className="mt-2" />
+                    <InputError message={__(errors.email)} className="mt-2" />
                 </div>
 
                 <div className="mt-4">
-                    <InputLabel htmlFor="password" value={__('Password')} />
+                    <Label htmlFor="password">{__('Password')}</Label>
 
-                    <TextInput
+                    <Input
                         id="password"
                         type="password"
                         name="password"
@@ -65,33 +60,40 @@ export default function Login({ status, canResetPassword }) {
                         onChange={(e) => setData('password', e.target.value)}
                     />
 
-                    <InputError message={errors.password} className="mt-2" />
+                    <InputError message={__(errors.password)} className="mt-2" />
                 </div>
 
                 <div className="block mt-4">
-                    <label className="flex items-center">
+                    <div className="flex items-center">
                         <Checkbox
+                            id="remember"
                             name="remember"
                             checked={data.remember}
                             onChange={(e) => setData('remember', e.target.checked)}
                         />
-                        <span className="ms-2 text-sm text-gray-600">{__('Remember me')}</span>
-                    </label>
+                        <Label htmlFor="remember" className="ms-2">
+                            {__('Remember me')}
+                        </Label>
+
+                        {canResetPassword && (
+                            <Link
+                                href={route('password.request')}
+                                className={`ml-auto ${buttonVariants({ variant: 'link' })} pr-0`}
+                            >
+                                {__('Forgot your password?')}
+                            </Link>
+                        )}
+                    </div>
                 </div>
 
-                <div className="flex items-center justify-end mt-4">
-                    {canResetPassword && (
-                        <Link
-                            href={route('password.request')}
-                            className="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                        >
-                            {__('Forgot your password?')}
-                        </Link>
-                    )}
+                <Button className="w-full mt-4" disabled={processing}>
+                    {__('Log in')}
+                </Button>
 
-                    <PrimaryButton className="ms-4" disabled={processing}>
-                        {__('Log in')}
-                    </PrimaryButton>
+                <div className="flex items-center justify-end mt-4">
+                    <Link href={route('register')} className={`${buttonVariants({ variant: 'link' })} pr-0`}>
+                        {`${__('Need an account?')} ${__('Register')}`}
+                    </Link>
                 </div>
             </form>
         </GuestLayout>

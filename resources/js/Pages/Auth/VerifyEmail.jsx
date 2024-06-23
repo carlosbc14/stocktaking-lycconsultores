@@ -1,7 +1,7 @@
 import GuestLayout from '@/Layouts/GuestLayout';
-import PrimaryButton from '@/Components/PrimaryButton';
+import { Button, buttonVariants } from '@/Components/ui';
 import { useTraslations } from '@/Contexts/TranslationsContext';
-import { Head, Link, useForm } from '@inertiajs/react';
+import { Link, useForm } from '@inertiajs/react';
 
 export default function VerifyEmail({ status }) {
     const { __ } = useTraslations();
@@ -14,9 +14,7 @@ export default function VerifyEmail({ status }) {
     };
 
     return (
-        <GuestLayout>
-            <Head title={__('Email Verification')} />
-
+        <GuestLayout title={__('Email Verification')}>
             <div className="mb-4 text-sm text-gray-600">
                 {__(
                     "Thanks for signing up! Before getting started, could you verify your email address by clicking on the link we just emailed to you? If you didn't receive the email, we will gladly send you another."
@@ -31,13 +29,13 @@ export default function VerifyEmail({ status }) {
 
             <form onSubmit={submit}>
                 <div className="mt-4 flex items-center justify-between">
-                    <PrimaryButton disabled={processing}>{__('Resend Verification Email')}</PrimaryButton>
+                    <Button disabled={processing}>{__('Resend Verification Email')}</Button>
 
                     <Link
                         href={route('logout')}
                         method="post"
                         as="button"
-                        className="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                        className={`${buttonVariants({ variant: 'link' })} pr-0`}
                     >
                         {__('Log Out')}
                     </Link>

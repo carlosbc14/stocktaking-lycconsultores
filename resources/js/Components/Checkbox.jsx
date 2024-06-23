@@ -1,12 +1,11 @@
-export default function Checkbox({ className = '', ...props }) {
+import { cn } from '@/lib/utils';
+
+export function Checkbox({ className = '', ...props }) {
     return (
         <input
             {...props}
             type="checkbox"
-            className={
-                'rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500 ' +
-                className
-            }
+            className={cn('rounded border-input text-primary focus:ring-offset-0 focus:ring-0', className)}
         />
     );
 }

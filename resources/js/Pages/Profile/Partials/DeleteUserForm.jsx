@@ -1,16 +1,25 @@
-import { useRef, useState } from 'react';
-import DangerButton from '@/Components/DangerButton';
-import InputError from '@/Components/InputError';
-import InputLabel from '@/Components/InputLabel';
-import Modal from '@/Components/Modal';
-import SecondaryButton from '@/Components/SecondaryButton';
-import TextInput from '@/Components/TextInput';
+import { useRef } from 'react';
+import {
+    Button,
+    Dialog,
+    DialogClose,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+    Input,
+    Label,
+    useToast,
+} from '@/Components/ui';
+import { InputError } from '@/Components';
 import { useTraslations } from '@/Contexts/TranslationsContext';
 import { useForm } from '@inertiajs/react';
 
 export default function DeleteUserForm({ className = '' }) {
     const { __ } = useTraslations();
-    const [confirmingUserDeletion, setConfirmingUserDeletion] = useState(false);
+    const { toast } = useToast();
     const passwordInput = useRef();
 
     const {
@@ -24,25 +33,19 @@ export default function DeleteUserForm({ className = '' }) {
         password: '',
     });
 
-    const confirmUserDeletion = () => {
-        setConfirmingUserDeletion(true);
-    };
-
     const deleteUser = (e) => {
         e.preventDefault();
 
         destroy(route('profile.destroy'), {
             preserveScroll: true,
-            onSuccess: () => closeModal(),
+            onSuccess: () => {
+                toast({
+                    title: __('Account Successfully Deleted'),
+                });
+            },
             onError: () => passwordInput.current.focus(),
             onFinish: () => reset(),
         });
-    };
-
-    const closeModal = () => {
-        setConfirmingUserDeletion(false);
-
-        reset();
     };
 
     return (
@@ -57,47 +60,52 @@ export default function DeleteUserForm({ className = '' }) {
                 </p>
             </header>
 
-            <DangerButton onClick={confirmUserDeletion}>{__('Delete Account')}</DangerButton>
+            <Dialog>
+                <DialogTrigger asChild>
+                    <Button variant="destructive">{__('Delete Account')}</Button>
+                </DialogTrigger>
+                <DialogContent>
+                    <form onSubmit={deleteUser} className="p-6">
+                        <DialogHeader>
+                            <DialogTitle>{__('Are you sure you want to delete your account?')}</DialogTitle>
+                            <DialogDescription>
+                                {__(
+                                    'Once your account is deleted, all of its resources and data will be permanently deleted. Please enter your password to confirm you would like to permanently delete your account.'
+                                )}
+                            </DialogDescription>
+                        </DialogHeader>
 
-            <Modal show={confirmingUserDeletion} onClose={closeModal}>
-                <form onSubmit={deleteUser} className="p-6">
-                    <h2 className="text-lg font-medium text-gray-900">
-                        {__('Are you sure you want to delete your account?')}
-                    </h2>
+                        <div className="my-4">
+                            <Label htmlFor="password" className="sr-only">
+                                {__('Password')}
+                            </Label>
 
-                    <p className="mt-1 text-sm text-gray-600">
-                        {__(
-                            'Once your account is deleted, all of its resources and data will be permanently deleted. Please enter your password to confirm you would like to permanently delete your account.'
-                        )}
-                    </p>
+                            <Input
+                                id="password"
+                                type="password"
+                                name="password"
+                                ref={passwordInput}
+                                value={data.password}
+                                onChange={(e) => setData('password', e.target.value)}
+                                className="mt-1 block sm:w-3/4"
+                                isFocused
+                                placeholder={__('Password')}
+                            />
 
-                    <div className="mt-6">
-                        <InputLabel htmlFor="password" value={__('Password')} className="sr-only" />
+                            <InputError message={__(errors.password)} className="mt-2" />
+                        </div>
 
-                        <TextInput
-                            id="password"
-                            type="password"
-                            name="password"
-                            ref={passwordInput}
-                            value={data.password}
-                            onChange={(e) => setData('password', e.target.value)}
-                            className="mt-1 block w-3/4"
-                            isFocused
-                            placeholder={__('Password')}
-                        />
-
-                        <InputError message={errors.password} className="mt-2" />
-                    </div>
-
-                    <div className="mt-6 flex justify-end">
-                        <SecondaryButton onClick={closeModal}>{__('Cancel')}</SecondaryButton>
-
-                        <DangerButton className="ms-3" disabled={processing}>
-                            {__('Delete Account')}
-                        </DangerButton>
-                    </div>
-                </form>
-            </Modal>
+                        <DialogFooter>
+                            <DialogClose asChild>
+                                <Button variant="outline">{__('Cancel')}</Button>
+                            </DialogClose>
+                            <Button variant="destructive" className="mb-2 sm:mb-0 sm:ms-3" disabled={processing}>
+                                {__('Delete Account')}
+                            </Button>
+                        </DialogFooter>
+                    </form>
+                </DialogContent>
+            </Dialog>
         </section>
     );
 }
