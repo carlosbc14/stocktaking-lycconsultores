@@ -8,6 +8,7 @@ import { Link, useForm } from '@inertiajs/react';
 export default function Register() {
     const { __ } = useTraslations();
     const { data, setData, post, processing, errors, reset } = useForm({
+        rut: '',
         name: '',
         email: '',
         password: '',
@@ -30,6 +31,23 @@ export default function Register() {
         <GuestLayout title={__('Register')}>
             <form onSubmit={submit}>
                 <div>
+                    <Label htmlFor="rut">{__('RUT')}</Label>
+
+                    <Input
+                        id="rut"
+                        name="rut"
+                        value={data.rut}
+                        className="mt-1 block w-full"
+                        autoComplete="rut"
+                        isFocused={true}
+                        onChange={(e) => setData('rut', e.target.value)}
+                        required
+                    />
+
+                    <InputError message={__(errors.rut)} className="mt-2" />
+                </div>
+
+                <div className="mt-4">
                     <Label htmlFor="name">{__('Name')}</Label>
 
                     <Input
@@ -38,7 +56,6 @@ export default function Register() {
                         value={data.name}
                         className="mt-1 block w-full"
                         autoComplete="name"
-                        isFocused={true}
                         onChange={(e) => setData('name', e.target.value)}
                         required
                     />

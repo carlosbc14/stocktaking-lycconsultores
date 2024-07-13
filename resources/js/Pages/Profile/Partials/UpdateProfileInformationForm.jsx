@@ -9,6 +9,7 @@ export default function UpdateProfileInformation({ mustVerifyEmail, status, clas
     const user = usePage().props.auth.user;
 
     const { data, setData, patch, errors, processing } = useForm({
+        rut: user.rut,
         name: user.name,
         email: user.email,
     });
@@ -37,6 +38,22 @@ export default function UpdateProfileInformation({ mustVerifyEmail, status, clas
 
             <form onSubmit={submit} className="mt-6 space-y-6">
                 <div>
+                    <Label htmlFor="rut">{__('RUT')}</Label>
+
+                    <Input
+                        id="rut"
+                        className="mt-1 block w-full"
+                        value={data.rut}
+                        onChange={(e) => setData('rut', e.target.value)}
+                        required
+                        isFocused
+                        autoComplete="rut"
+                    />
+
+                    <InputError className="mt-2" message={__(errors.rut)} />
+                </div>
+
+                <div>
                     <Label htmlFor="name">{__('Name')}</Label>
 
                     <Input
@@ -45,7 +62,6 @@ export default function UpdateProfileInformation({ mustVerifyEmail, status, clas
                         value={data.name}
                         onChange={(e) => setData('name', e.target.value)}
                         required
-                        isFocused
                         autoComplete="name"
                     />
 
