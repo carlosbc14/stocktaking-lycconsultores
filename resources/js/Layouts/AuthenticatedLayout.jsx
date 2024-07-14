@@ -1,4 +1,4 @@
-import { ChevronDown, ListMinus, LogOut, User } from 'lucide-react';
+import { ChevronDown, Home, ListMinus, LogOut, User } from 'lucide-react';
 import {
     Button,
     DropdownMenu,
@@ -16,6 +16,14 @@ import { LangSelect, SideBar } from '@/Components';
 import { useTraslations } from '@/Contexts/TranslationsContext';
 import { Head, Link } from '@inertiajs/react';
 
+const links = [
+    {
+        route: 'dashboard',
+        name: 'Dashboard',
+        icon: Home,
+    },
+];
+
 export default function Authenticated({ user, title, children }) {
     const { __ } = useTraslations();
 
@@ -23,7 +31,7 @@ export default function Authenticated({ user, title, children }) {
         <div className="min-h-screen h-screen flex bg-gray-100">
             <Head title={title} />
 
-            <SideBar className="hidden sm:block w-80" />
+            <SideBar links={links} className="hidden sm:block w-80" />
 
             <div className="flex flex-col w-full">
                 <header className="bg-white border-b border-gray-100">
@@ -38,7 +46,7 @@ export default function Authenticated({ user, title, children }) {
                                 <SheetContent className="p-0" side="left">
                                     <SheetTitle className="hidden"></SheetTitle>
                                     <SheetDescription className="hidden"></SheetDescription>
-                                    <SideBar className="w-full" />
+                                    <SideBar links={links} className="w-full" />
                                 </SheetContent>
                             </Sheet>
 

@@ -1,18 +1,9 @@
 import { Link } from '@inertiajs/react';
-import { Home } from 'lucide-react';
 import { buttonVariants } from './ui';
 import { useTraslations } from '@/Contexts/TranslationsContext';
 import { cn } from '@/lib/utils';
 
-const links = [
-    {
-        route: 'dashboard',
-        name: 'Dashboard',
-        icon: Home,
-    },
-];
-
-export function SideBar({ className = '' }) {
+export function SideBar({ links, className = '' }) {
     const { __ } = useTraslations();
 
     return (
