@@ -11,11 +11,20 @@ return new class extends Migration
      */
     public function up(): void
     {
-        $owner_role = Role::create(['name' => 'owner']);
-        $admin_role = Role::create(['name' => 'admin']);
-        $supervisor_role = Role::create(['name' => 'supervisor']);
-        $lead_operator_role = Role::create(['name' => 'lead_operator']);
-        $operator_role = Role::create(['name' => 'operator']);
+        Permission::create(['name' => 'write company']);
+        Permission::create(['name' => 'read company']);
+        Permission::create(['name' => 'edit company']);
+        Permission::create(['name' => 'delete company']);
+
+        Role::create(['name' => 'owner'])->givePermissionTo(['write company', 'read company', 'edit company', 'delete company']);
+
+        Role::create(['name' => 'admin'])->givePermissionTo(['read company']);
+
+        Role::create(['name' => 'supervisor']);
+
+        Role::create(['name' => 'lead_operator']);
+
+        Role::create(['name' => 'operator']);
     }
 
     /**
