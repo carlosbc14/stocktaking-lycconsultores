@@ -1,4 +1,4 @@
-import { ChevronDown, Home, ListMinus, LogOut, User } from 'lucide-react';
+import { Building2, ChevronDown, Home, ListMinus, LogOut, User } from 'lucide-react';
 import {
     Button,
     DropdownMenu,
@@ -16,6 +16,7 @@ import { LangSelect, SideBar } from '@/Components';
 import { useTraslations } from '@/Contexts/TranslationsContext';
 import { Head, Link } from '@inertiajs/react';
 
+let linksAdded = false;
 const links = [
     {
         route: 'dashboard',
@@ -26,6 +27,18 @@ const links = [
 
 export default function Authenticated({ user, title, children }) {
     const { __ } = useTraslations();
+
+    if (!linksAdded) {
+        if (user.company_id && user.permissions.some((per) => per.name === 'read company')) {
+            links.push({
+                route: 'company.show',
+                name: 'Company',
+                icon: Building2,
+            });
+        }
+
+        linksAdded = true;
+    }
 
     return (
         <div className="min-h-screen h-screen flex bg-gray-100">
