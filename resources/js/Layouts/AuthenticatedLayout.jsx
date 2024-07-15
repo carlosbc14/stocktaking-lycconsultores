@@ -1,4 +1,4 @@
-import { Building2, ChevronDown, Home, ListMinus, LogOut, User } from 'lucide-react';
+import { Building2, ChevronDown, Home, ListMinus, LogOut, User, Warehouse } from 'lucide-react';
 import {
     Button,
     DropdownMenu,
@@ -34,6 +34,14 @@ export default function Authenticated({ user, title, children }) {
                 route: 'company.show',
                 name: 'Company',
                 icon: Building2,
+            });
+        }
+
+        if (user.permissions.some((per) => per.name === 'read warehouses')) {
+            links.push({
+                route: 'warehouses.index',
+                name: 'Warehouses',
+                icon: Warehouse,
             });
         }
 

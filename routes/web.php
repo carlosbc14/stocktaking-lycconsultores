@@ -45,6 +45,7 @@ Route::middleware(LocaleCookie::class)->group(function () {
         Route::delete('/company', [CompanyController::class, 'destroy'])->name('company.destroy');
 
         Route::resource('/users', UserController::class)->only(['create', 'store', 'edit', 'update', 'destroy']);
+        Route::resource('/warehouses', WarehouseController::class);
     });
 
 
