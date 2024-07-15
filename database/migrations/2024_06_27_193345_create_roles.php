@@ -26,16 +26,23 @@ return new class extends Migration
         Permission::create(['name' => 'edit warehouses']);
         Permission::create(['name' => 'delete warehouses']);
 
+        Permission::create(['name' => 'write products']);
+        Permission::create(['name' => 'read products']);
+        Permission::create(['name' => 'edit products']);
+        Permission::create(['name' => 'delete products']);
+
         Role::create(['name' => 'owner'])->givePermissionTo([
             'write company', 'read company', 'edit company', 'delete company',
             'write users', 'read users', 'edit users', 'delete users',
             'write warehouses', 'read warehouses', 'edit warehouses', 'delete warehouses',
+            'write products', 'read products', 'edit products', 'delete products',
         ]);
 
         Role::create(['name' => 'admin'])->givePermissionTo([
             'read company',
             'write users', 'read users', 'edit users', 'delete users',
             'write warehouses', 'read warehouses', 'edit warehouses', 'delete warehouses',
+            'write products', 'read products', 'edit products', 'delete products',
         ]);
 
         Role::create(['name' => 'supervisor']);

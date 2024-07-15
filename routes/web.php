@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CompanyController;
+use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WarehouseController;
@@ -46,6 +47,7 @@ Route::middleware(LocaleCookie::class)->group(function () {
 
         Route::resource('/users', UserController::class)->only(['create', 'store', 'edit', 'update', 'destroy']);
         Route::resource('/warehouses', WarehouseController::class);
+        Route::resource('/products', ProductController::class);
     });
 
 
