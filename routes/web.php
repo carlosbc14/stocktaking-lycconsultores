@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\WarehouseController;
 use App\Http\Middleware\LocaleCookie;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -41,6 +43,8 @@ Route::middleware(LocaleCookie::class)->group(function () {
         Route::get('/company/edit', [CompanyController::class, 'edit'])->name('company.edit');
         Route::patch('/company', [CompanyController::class, 'update'])->name('company.update');
         Route::delete('/company', [CompanyController::class, 'destroy'])->name('company.destroy');
+
+        Route::resource('/users', UserController::class)->only(['create', 'store', 'edit', 'update', 'destroy']);
     });
 
 
