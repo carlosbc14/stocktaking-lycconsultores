@@ -27,7 +27,6 @@ export default function ShowCompanyUsers({
     className = '',
 }) {
     const { __ } = useTraslations();
-    console.log(users);
 
     return (
         <section className={className}>
