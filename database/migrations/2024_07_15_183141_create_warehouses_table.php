@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('code')->unique();
             $table->string('name');
             $table->foreignId('company_id')
+                ->nullable()
                 ->constrained('companies')
                 ->cascadeOnUpdate()
                 ->cascadeOnDelete();
