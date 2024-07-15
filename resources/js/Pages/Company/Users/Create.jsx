@@ -118,7 +118,7 @@ export default function Create({ auth, roles }) {
                                 <SelectContent>
                                     {roles.map((role) => (
                                         <SelectItem key={role} value={role}>
-                                            {__(role).toUpperCase()}
+                                            {__(role.replace('_', ' ')).toUpperCase()}
                                         </SelectItem>
                                     ))}
                                 </SelectContent>
