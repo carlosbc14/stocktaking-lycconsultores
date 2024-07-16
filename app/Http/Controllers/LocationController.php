@@ -44,10 +44,6 @@ class LocationController extends Controller
             'locations.*.line_of_business' => 'required|string|max:255',
             'locations.*.aisle' => 'required|regex:/^[A-Za-z0-9]{2}$/',
             'locations.*.code' => 'required|regex:/^[A-Za-z0-9]{2}-\d{2}-\d{2}$/|unique:locations',
-        ], [], [
-            'locations.*.line_of_business' => strtolower(trans('Line of business')),
-            'locations.*.aisle' => strtolower(trans('Aisle')),
-            'locations.*.code' => strtolower(trans('Code')),
         ]);
 
         foreach ($validated['locations'] as &$location_validated) {
@@ -90,10 +86,6 @@ class LocationController extends Controller
             'line_of_business' => 'string|max:255',
             'aisle' => 'regex:/^[A-Za-z0-9]{2}$/',
             'code' => 'regex:/^[A-Za-z0-9]{2}-\d{2}-\d{2}$/|unique:locations,code,' . $location->id,
-        ], [], [
-            'line_of_business' => strtolower(trans('Line of business')),
-            'aisle' => strtolower(trans('Aisle')),
-            'code' => strtolower(trans('Code')),
         ]);
 
         $location->update($validated);
