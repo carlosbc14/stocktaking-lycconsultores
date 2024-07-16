@@ -69,7 +69,7 @@ class WarehouseController extends Controller
         }
 
         return Inertia::render('Company/Warehouses/Show', [
-            'warehouse' => $warehouse,
+            'warehouse' => $warehouse->load('locations'),
         ]);
     }
 
