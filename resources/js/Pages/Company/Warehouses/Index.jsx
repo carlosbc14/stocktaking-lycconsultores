@@ -33,7 +33,7 @@ export default function Index({ auth, warehouses }) {
                 {canCreate && (
                     <div className="flex justify-end mb-6">
                         <Link href={route('warehouses.create')}>
-                            <Button>{__('Add :name', { name: __('warehouses') })}</Button>
+                            <Button>{__('Add :name', { name: __('warehouse') })}</Button>
                         </Link>
                     </div>
                 )}
