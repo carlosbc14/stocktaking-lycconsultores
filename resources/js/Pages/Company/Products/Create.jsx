@@ -21,7 +21,7 @@ export default function Create({ auth }) {
     };
 
     const addProduct = () => {
-        setData('products', [...data.products, { line_of_business: '', aisle: '', code: '' }]);
+        setData('products', [...data.products, { code_sku: '', description: '', institution: '' }]);
     };
 
     const removeProduct = (index) => {
@@ -57,7 +57,7 @@ export default function Create({ auth }) {
                     </header>
 
                     <form onSubmit={submit} className="mt-6 space-y-6">
-                        {data.products.map((__prdct, i) => (
+                        {data.products.map((prdct, i) => (
                             <div key={i}>
                                 <div className="grid grid-cols-6 gap-4">
                                     <div className="col-span-2 lg:col-span-1">
@@ -65,7 +65,7 @@ export default function Create({ auth }) {
 
                                         <Input
                                             id="code_sku"
-                                            value={data.code_sku}
+                                            value={prdct.code_sku}
                                             className="mt-1 block w-full"
                                             onChange={(e) => handleChange(i, 'code_sku', e.target.value)}
                                         />
@@ -78,7 +78,7 @@ export default function Create({ auth }) {
 
                                         <Input
                                             id="description"
-                                            value={data.description}
+                                            value={prdct.description}
                                             className="mt-1 block w-full"
                                             onChange={(e) => handleChange(i, 'description', e.target.value)}
                                         />
@@ -94,7 +94,7 @@ export default function Create({ auth }) {
 
                                         <Input
                                             id="institution"
-                                            value={data.institution}
+                                            value={prdct.institution}
                                             className="mt-1 block w-full"
                                             onChange={(e) => handleChange(i, 'institution', e.target.value)}
                                         />
