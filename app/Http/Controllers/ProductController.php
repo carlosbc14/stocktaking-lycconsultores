@@ -48,10 +48,6 @@ class ProductController extends Controller
             'products.*.code_sku' => 'required|unique:products|string|max:255',
             'products.*.description' => 'required|string|max:255',
             'products.*.institution' => 'required|string|max:255',
-        ], [], [
-            'products.*.code_sku' => strtolower(trans('Code') . ' SKU'),
-            'products.*.description' => strtolower(trans('Description')),
-            'products.*.institution' => strtolower(trans('Institution')),
         ]);
 
         foreach ($validated['products'] as &$product_validated) {
@@ -94,10 +90,6 @@ class ProductController extends Controller
             'code_sku' => 'string|max:255|unique:products,code_sku,' . $product->id,
             'description' => 'string|max:255',
             'institution' => 'string|max:255',
-        ], [], [
-            'code_sku' => strtolower(trans('Code') . ' SKU'),
-            'description' => strtolower(trans('Description')),
-            'institution' => strtolower(trans('Institution')),
         ]);
 
         $product->update($validated);
