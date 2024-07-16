@@ -12,7 +12,7 @@ export default function ShowWarehouseInformation({ warehouse, canEdit = false, c
 
                 {canEdit && (
                     <div className="flex justify-end">
-                        <Link href={route('warehouses.edit')}>
+                        <Link href={route('warehouses.edit', warehouse.id)}>
                             <Button>{__('Edit :name', { name: __('warehouse') })}</Button>
                         </Link>
                     </div>
