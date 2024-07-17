@@ -50,7 +50,7 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|lowercase|email|max:255|unique:users,email',
             'password' => ['required', Password::defaults()],
-            'role' => 'required|string|max:255',
+            'role' => 'required|exists:roles,name',
         ]);
 
         $user = User::create([
@@ -61,10 +61,7 @@ class UserController extends Controller
             'company_id' => $request->user()->company_id,
         ]);
 
-        try {
-            $user->assignRole($request->role);
-        } catch (\Throwable $th) {
-        }
+        $user->assignRole($request->role);
 
         return redirect(route('company.show'));
     }
@@ -99,7 +96,7 @@ class UserController extends Controller
             })],
             'name' => 'string|max:255',
             'email' => 'string|lowercase|email|max:255|unique:users,email,' . $user->id,
-            'role' => 'string|max:255',
+            'role' => 'exists:roles,name',
         ]);
 
         if ($validated['role']) {
