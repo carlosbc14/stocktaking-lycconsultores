@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
-use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -69,9 +68,7 @@ class ProductController extends Controller
      */
     public function edit(Request $request, Product $product): Response
     {
-        if ($request->user()->company->id != $product->company_id) {
-            throw new AuthorizationException('Forbidden');
-        }
+        if ($request->user()->company_id != $product->company_id) abort(403);
 
         return Inertia::render('Company/Products/Edit', [
             'product' => $product,
@@ -83,9 +80,7 @@ class ProductController extends Controller
      */
     public function update(Request $request, Product $product): RedirectResponse
     {
-        if ($request->user()->company->id != $product->company_id) {
-            throw new AuthorizationException('Forbidden');
-        }
+        if ($request->user()->company_id != $product->company_id) abort(403);
 
         $validated = $request->validate([
             'code_sku' => ['string', 'max:255', Rule::unique('products')->where(function ($query) use ($product) {
@@ -105,9 +100,7 @@ class ProductController extends Controller
      */
     public function destroy(Request $request, Product $product): RedirectResponse
     {
-        if ($request->user()->company->id != $product->company_id) {
-            throw new AuthorizationException('Forbidden');
-        }
+        if ($request->user()->company_id != $product->company_id) abort(403);
 
         $product->delete();
 

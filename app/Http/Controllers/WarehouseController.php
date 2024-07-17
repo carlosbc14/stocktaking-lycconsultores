@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Warehouse;
-use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -66,9 +65,7 @@ class WarehouseController extends Controller
      */
     public function show(Request $request, Warehouse $warehouse): Response
     {
-        if ($request->user()->company->id != $warehouse->company_id) {
-            throw new AuthorizationException('Forbidden');
-        }
+        if ($request->user()->company_id != $warehouse->company_id) abort(403);
 
         return Inertia::render('Company/Warehouses/Show', [
             'warehouse' => $warehouse->load('locations'),
@@ -80,9 +77,7 @@ class WarehouseController extends Controller
      */
     public function edit(Request $request, Warehouse $warehouse): Response
     {
-        if ($request->user()->company->id != $warehouse->company_id) {
-            throw new AuthorizationException('Forbidden');
-        }
+        if ($request->user()->company_id != $warehouse->company_id) abort(403);
 
         return Inertia::render('Company/Warehouses/Edit', [
             'warehouse' => $warehouse,
@@ -94,9 +89,7 @@ class WarehouseController extends Controller
      */
     public function update(Request $request, Warehouse $warehouse): RedirectResponse
     {
-        if ($request->user()->company->id != $warehouse->company_id) {
-            throw new AuthorizationException('Forbidden');
-        }
+        if ($request->user()->company_id != $warehouse->company_id) abort(403);
 
         $validated = $request->validate([
             'code' => ['string', 'max:255', Rule::unique('warehouses')->where(function ($query) use ($warehouse) {
@@ -115,9 +108,7 @@ class WarehouseController extends Controller
      */
     public function destroy(Request $request, Warehouse $warehouse): RedirectResponse
     {
-        if ($request->user()->company->id != $warehouse->company_id) {
-            throw new AuthorizationException('Forbidden');
-        }
+        if ($request->user()->company_id != $warehouse->company_id) abort(403);
 
         $warehouse->delete();
 

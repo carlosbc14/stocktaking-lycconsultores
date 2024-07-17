@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Company;
 use Freshwork\ChileanBundle\Rut;
-use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -55,9 +54,7 @@ class CompanyController extends Controller
      */
     public function show(Request $request): Response
     {
-        if (!$request->user()->company->id) {
-            throw new AuthorizationException('Forbidden');
-        }
+        if (!$request->user()->company_id) abort(404);
 
         $company = Company::findOrFail($request->user()->company->id);
 
@@ -71,9 +68,7 @@ class CompanyController extends Controller
      */
     public function edit(Request $request): Response
     {
-        if (!$request->user()->company->id) {
-            throw new AuthorizationException('Forbidden');
-        }
+        if (!$request->user()->company_id) abort(404);
 
         $company = Company::findOrFail($request->user()->company->id);
 
@@ -87,9 +82,7 @@ class CompanyController extends Controller
      */
     public function update(Request $request): RedirectResponse
     {
-        if (!$request->user()->company->id) {
-            throw new AuthorizationException('Forbidden');
-        }
+        if (!$request->user()->company_id) abort(404);
 
         $company = Company::findOrFail($request->user()->company->id);
 
@@ -114,9 +107,7 @@ class CompanyController extends Controller
      */
     public function destroy(Request $request): RedirectResponse
     {
-        if (!$request->user()->company->id) {
-            throw new AuthorizationException('Forbidden');
-        }
+        if (!$request->user()->company_id) abort(404);
 
         $company = Company::findOrFail($request->user()->company->id);
 

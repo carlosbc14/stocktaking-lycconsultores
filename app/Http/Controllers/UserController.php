@@ -69,8 +69,10 @@ class UserController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(User $user): Response
+    public function edit(Request $request, User $user): Response
     {
+        if ($request->user()->company_id != $user->company_id) abort(403);
+
         $user->role = $user->getRoleNames()[0];
 
         $roles = Role::all()->pluck('name');
@@ -86,6 +88,8 @@ class UserController extends Controller
      */
     public function update(Request $request, User $user): RedirectResponse
     {
+        if ($request->user()->company_id != $user->company_id) abort(403);
+
         $request->merge([
             'rut' => Rut::parse($request->rut)->quiet()->format(),
         ]);
@@ -113,8 +117,10 @@ class UserController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(User $user): RedirectResponse
+    public function destroy(Request $request, User $user): RedirectResponse
     {
+        if ($request->user()->company_id != $user->company_id) abort(403);
+
         $user->delete();
 
         return redirect(route('company.show'));

@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Location;
 use App\Models\Warehouse;
-use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -37,9 +36,7 @@ class LocationController extends Controller
     {
         $warehouse = Warehouse::findOrFail($request->warehouse_id);
 
-        if ($request->user()->company->id != $warehouse->company->id) {
-            throw new AuthorizationException('Forbidden');
-        }
+        if ($request->user()->company_id != $warehouse->company_id) abort(403);
 
         $validated = $request->validate([
             'locations.*.line_of_business' => 'required|string|max:255',
@@ -65,9 +62,7 @@ class LocationController extends Controller
      */
     public function edit(Request $request, Location $location): Response
     {
-        if ($request->user()->company->id != $location->warehouse->company->id) {
-            throw new AuthorizationException('Forbidden');
-        }
+        if ($request->user()->company_id != $location->warehouse->company_id) abort(403);
 
         return Inertia::render('Company/Warehouses/Locations/Edit', [
             'location' => $location,
@@ -79,9 +74,7 @@ class LocationController extends Controller
      */
     public function update(Request $request, Location $location): RedirectResponse
     {
-        if ($request->user()->company->id != $location->warehouse->company->id) {
-            throw new AuthorizationException('Forbidden');
-        }
+        if ($request->user()->company_id != $location->warehouse->company_id) abort(403);
 
         $validated = $request->validate([
             'line_of_business' => 'string|max:255',
@@ -101,9 +94,7 @@ class LocationController extends Controller
      */
     public function destroy(Request $request, Location $location): RedirectResponse
     {
-        if ($request->user()->company->id != $location->warehouse->company->id) {
-            throw new AuthorizationException('Forbidden');
-        }
+        if ($request->user()->company_id != $location->warehouse->company_id) abort(403);
 
         $location->delete();
 
