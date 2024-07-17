@@ -13,6 +13,7 @@ class Product extends Model
         'code_sku',
         'description',
         'institution',
+        'company_id',
     ];
 
     public function company()

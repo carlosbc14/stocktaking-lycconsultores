@@ -13,14 +13,14 @@ return new class extends Migration
     {
         Schema::create('warehouses', function (Blueprint $table) {
             $table->id();
-            $table->string('code')->unique();
+            $table->string('code');
             $table->string('name');
             $table->foreignId('company_id')
-                ->nullable()
                 ->constrained('companies')
                 ->cascadeOnUpdate()
                 ->cascadeOnDelete();
             $table->timestamps();
+            $table->unique(['code', 'company_id']);
         });
     }
 

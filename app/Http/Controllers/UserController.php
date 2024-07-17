@@ -7,6 +7,7 @@ use Freshwork\ChileanBundle\Rut;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -43,7 +44,9 @@ class UserController extends Controller
         ]);
 
         $request->validate([
-            'rut' => 'required|cl_rut|unique:users,rut',
+            'rut' => ['required', 'cl_rut', Rule::unique('users')->where(function ($query) use ($request) {
+                return $query->where('company_id', $request->user()->company_id);
+            })],
             'name' => 'required|string|max:255',
             'email' => 'required|string|lowercase|email|max:255|unique:users,email',
             'password' => ['required', Password::defaults()],
@@ -55,9 +58,8 @@ class UserController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'company_id' => $request->user()->company_id,
         ]);
-
-        $request->user()->company->users()->save($user);
 
         try {
             $user->assignRole($request->role);
@@ -92,7 +94,9 @@ class UserController extends Controller
         ]);
 
         $validated = $request->validate([
-            'rut' => 'cl_rut|unique:users,rut,' . $user->id,
+            'rut' => ['required', 'cl_rut', Rule::unique('users')->where(function ($query) use ($user) {
+                return $query->where('company_id', $user->company_id)->where('id', '!=', $user->id);
+            })],
             'name' => 'string|max:255',
             'email' => 'string|lowercase|email|max:255|unique:users,email,' . $user->id,
             'role' => 'string|max:255',

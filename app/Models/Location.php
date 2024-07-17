@@ -13,6 +13,7 @@ class Location extends Model
         'line_of_business',
         'aisle',
         'code',
+        'warehouse_id',
     ];
 
     public function warehouse()

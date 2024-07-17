@@ -6,6 +6,7 @@ use App\Models\Warehouse;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -45,16 +46,17 @@ class WarehouseController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
-            'code' => 'required|string|max:255|unique:warehouses,code',
+            'code' => ['required', 'string', 'max:255', Rule::unique('warehouses')->where(function ($query) use ($request) {
+                return $query->where('company_id', $request->user()->company_id);
+            })],
             'name' => 'required|string|max:255',
         ]);
 
-        $warehouse = Warehouse::create([
+        Warehouse::create([
             'code' => $request->code,
             'name' => $request->name,
+            'company_id' => $request->user()->company_id,
         ]);
-
-        $request->user()->company->warehouses()->save($warehouse);
 
         return redirect(route('warehouses.index'));
     }
@@ -97,7 +99,9 @@ class WarehouseController extends Controller
         }
 
         $validated = $request->validate([
-            'code' => 'string|max:255|unique:warehouses,code,' . $warehouse->id,
+            'code' => ['string', 'max:255', Rule::unique('warehouses')->where(function ($query) use ($warehouse) {
+                return $query->where('company_id', $warehouse->company_id)->where('id', '!=', $warehouse->id);
+            })],
             'name' => 'string|max:255',
         ]);
 

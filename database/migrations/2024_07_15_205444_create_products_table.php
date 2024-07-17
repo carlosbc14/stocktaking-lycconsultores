@@ -13,15 +13,15 @@ return new class extends Migration
     {
         Schema::create('products', function (Blueprint $table) {
             $table->id();
-            $table->string('code_sku')->unique();
+            $table->string('code_sku');
             $table->string('description');
             $table->string('institution');
             $table->foreignId('company_id')
-                ->nullable()
                 ->constrained('companies')
                 ->cascadeOnUpdate()
                 ->cascadeOnDelete();
             $table->timestamps();
+            $table->unique(['code_sku', 'company_id']);
         });
     }
 

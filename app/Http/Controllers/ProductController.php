@@ -6,6 +6,7 @@ use App\Models\Product;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -45,20 +46,20 @@ class ProductController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'products.*.code_sku' => 'required|unique:products|string|max:255',
+            'products.*.code_sku' => ['required', 'string', 'max:255', Rule::unique('products')->where(function ($query) use ($request) {
+                return $query->where('company_id', $request->user()->company_id);
+            })],
             'products.*.description' => 'required|string|max:255',
             'products.*.institution' => 'required|string|max:255',
         ]);
 
-        foreach ($validated['products'] as &$product_validated) {
-            $product = Product::create([
-                'code_sku' => $product_validated['code_sku'],
-                'description' => $product_validated['description'],
-                'institution' => $product_validated['institution'],
-            ]);
-
-            $request->user()->company->products()->save($product);
+        foreach ($validated['products'] as &$product) {
+            $product['company_id'] = $request->user()->company_id;
+            $product['created_at'] = now();
+            $product['updated_at'] = now();
         }
+
+        Product::insert($validated['products']);
 
         return redirect(route('products.index'));
     }
@@ -87,7 +88,9 @@ class ProductController extends Controller
         }
 
         $validated = $request->validate([
-            'code_sku' => 'string|max:255|unique:products,code_sku,' . $product->id,
+            'code_sku' => ['string', 'max:255', Rule::unique('products')->where(function ($query) use ($product) {
+                return $query->where('company_id', $product->company_id)->where('id', '!=', $product->id);
+            })],
             'description' => 'string|max:255',
             'institution' => 'string|max:255',
         ]);

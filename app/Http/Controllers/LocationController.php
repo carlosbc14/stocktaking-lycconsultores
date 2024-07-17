@@ -7,6 +7,7 @@ use App\Models\Warehouse;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -43,18 +44,18 @@ class LocationController extends Controller
         $validated = $request->validate([
             'locations.*.line_of_business' => 'required|string|max:255',
             'locations.*.aisle' => 'required|regex:/^[A-Za-z0-9]{2}$/',
-            'locations.*.code' => 'required|regex:/^[A-Za-z0-9]{2}-\d{2}-\d{2}$/|unique:locations',
+            'locations.*.code' => ['required', 'regex:/^[A-Za-z0-9]{2}-\d{2}-\d{2}$/', Rule::unique('locations')->where(function ($query) use ($request) {
+                return $query->where('warehouse_id', $request->warehouse_id);
+            })],
         ]);
 
-        foreach ($validated['locations'] as &$location_validated) {
-            $location = Location::create([
-                'line_of_business' => $location_validated['line_of_business'],
-                'aisle' => $location_validated['aisle'],
-                'code' => $location_validated['code'],
-            ]);
-
-            $warehouse->locations()->save($location);
+        foreach ($validated['locations'] as &$location) {
+            $location['warehouse_id'] = $request->warehouse_id;
+            $location['created_at'] = now();
+            $location['updated_at'] = now();
         }
+
+        Location::insert($validated['locations']);
 
         return redirect(route('warehouses.show', $request->warehouse_id));
     }
@@ -85,7 +86,9 @@ class LocationController extends Controller
         $validated = $request->validate([
             'line_of_business' => 'string|max:255',
             'aisle' => 'regex:/^[A-Za-z0-9]{2}$/',
-            'code' => 'regex:/^[A-Za-z0-9]{2}-\d{2}-\d{2}$/|unique:locations,code,' . $location->id,
+            'code' => ['regex:/^[A-Za-z0-9]{2}-\d{2}-\d{2}$/', Rule::unique('locations')->where(function ($query) use ($location) {
+                return $query->where('warehouse_id', $location->warehouse_id)->where('id', '!=', $location->id);
+            })],
         ]);
 
         $location->update($validated);

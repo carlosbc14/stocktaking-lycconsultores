@@ -15,13 +15,13 @@ return new class extends Migration
             $table->id();
             $table->string('line_of_business');
             $table->string('aisle');
-            $table->string('code')->unique();
+            $table->string('code');
             $table->foreignId('warehouse_id')
-                ->nullable()
                 ->constrained('warehouses')
                 ->cascadeOnUpdate()
                 ->cascadeOnDelete();
             $table->timestamps();
+            $table->unique(['code', 'warehouse_id']);
         });
     }
 
