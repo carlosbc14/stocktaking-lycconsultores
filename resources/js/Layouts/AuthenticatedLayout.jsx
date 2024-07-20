@@ -16,20 +16,19 @@ import { LangSelect, SideBar } from '@/Components';
 import { useTraslations } from '@/Contexts/TranslationsContext';
 import { Head, Link } from '@inertiajs/react';
 
-let linksAdded = false;
-const links = [
-    {
-        route: 'dashboard',
-        name: 'Dashboard',
-        icon: Home,
-    },
-];
-
 export default function Authenticated({ user, title, children }) {
     const { __ } = useTraslations();
 
-    if (!linksAdded) {
-        if (user.company_id && user.permissions.some((per) => per.name === 'read company')) {
+    const links = [
+        {
+            route: 'dashboard',
+            name: 'Dashboard',
+            icon: Home,
+        },
+    ];
+
+    if (user.company_id) {
+        if (user.permissions.some((per) => per.name === 'read company')) {
             links.push({
                 route: 'company.show',
                 name: 'Company',
@@ -52,8 +51,6 @@ export default function Authenticated({ user, title, children }) {
                 icon: Syringe,
             });
         }
-
-        linksAdded = true;
     }
 
     return (
