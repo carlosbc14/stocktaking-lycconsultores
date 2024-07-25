@@ -11,16 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('locations', function (Blueprint $table) {
+        Schema::create('aisles', function (Blueprint $table) {
             $table->id();
-            $table->integer('column');
-            $table->integer('row');
-            $table->foreignId('aisle_id')
-                ->constrained('aisles')
+            $table->string('line_of_business');
+            $table->string('code');
+            $table->foreignId('warehouse_id')
+                ->constrained('warehouses')
                 ->cascadeOnUpdate()
                 ->cascadeOnDelete();
             $table->timestamps();
-            $table->unique(['column', 'row', 'aisle_id']);
+            $table->unique(['code', 'warehouse_id']);
         });
     }
 
@@ -29,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('locations');
+        Schema::dropIfExists('aisles');
     }
 };

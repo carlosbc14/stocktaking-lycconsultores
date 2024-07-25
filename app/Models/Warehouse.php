@@ -20,8 +20,8 @@ class Warehouse extends Model
         return $this->belongsTo(Company::class);
     }
 
-    public function locations()
+    public function aisles()
     {
-        return $this->hasMany(Location::class);
+        return $this->hasMany(Aisle::class);
     }
 }

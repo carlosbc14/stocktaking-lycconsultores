@@ -51,13 +51,15 @@ class WarehouseController extends Controller
             'name' => 'required|string|max:255',
         ]);
 
-        Warehouse::create([
+        $warehouse = Warehouse::create([
             'code' => $request->code,
             'name' => $request->name,
             'company_id' => $request->user()->company_id,
         ]);
 
-        return redirect(route('warehouses.index'));
+        return redirect(route('aisles.create', [
+            'warehouse_id' => $warehouse->id,
+        ]));
     }
 
     /**
@@ -68,7 +70,7 @@ class WarehouseController extends Controller
         if ($request->user()->company_id != $warehouse->company_id) abort(403);
 
         return Inertia::render('Company/Warehouses/Show', [
-            'warehouse' => $warehouse->load('locations'),
+            'warehouse' => $warehouse->load('aisles.locations'),
         ]);
     }
 
@@ -80,7 +82,7 @@ class WarehouseController extends Controller
         if ($request->user()->company_id != $warehouse->company_id) abort(403);
 
         return Inertia::render('Company/Warehouses/Edit', [
-            'warehouse' => $warehouse,
+            'warehouse' => $warehouse->load('aisles.locations'),
         ]);
     }
 

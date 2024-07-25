@@ -10,14 +10,13 @@ class Location extends Model
     use HasFactory;
 
     protected $fillable = [
-        'line_of_business',
-        'aisle',
-        'code',
-        'warehouse_id',
+        'column',
+        'row',
+        'aisle_id',
     ];
 
-    public function warehouse()
+    public function aisle()
     {
-        return $this->belongsTo(Warehouse::class);
+        return $this->belongsTo(Aisle::class);
     }
 }

@@ -19,14 +19,14 @@ export default function ShowWarehouseInformation({ warehouse, canEdit = false, c
                 )}
             </header>
 
-            <div className="mt-6 space-y-6 max-w-xl">
-                <div>
+            <div className="mt-6 grid grid-cols-3 gap-4">
+                <div className="col-span-1">
                     <Label htmlFor="code">{__('Code')}</Label>
 
                     <Input id="code" className="mt-1 block w-full" value={warehouse.code} disabled />
                 </div>
 
-                <div>
+                <div className="col-span-2">
                     <Label htmlFor="name">{__('Name')}</Label>
 
                     <Input id="name" className="mt-1 block w-full" value={warehouse.name} disabled />

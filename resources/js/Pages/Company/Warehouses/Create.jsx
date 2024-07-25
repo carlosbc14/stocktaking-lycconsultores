@@ -68,7 +68,7 @@ export default function Create({ auth }) {
                             <InputError className="mt-2" message={__(errors.name)} />
                         </div>
 
-                        <Button disabled={processing}>{__('Save')}</Button>
+                        <Button disabled={processing}>{__('Save & Continue')}</Button>
                     </form>
                 </section>
             </div>
