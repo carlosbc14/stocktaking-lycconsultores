@@ -1,4 +1,4 @@
-import { Building2, ChevronDown, Home, ListMinus, LogOut, Syringe, User, Warehouse } from 'lucide-react';
+import { Building2, ChevronDown, Group, Home, ListMinus, LogOut, Syringe, User, Warehouse } from 'lucide-react';
 import {
     Button,
     DropdownMenu,
@@ -33,6 +33,14 @@ export default function Authenticated({ user, title, children }) {
                 route: 'company.show',
                 name: 'Company',
                 icon: Building2,
+            });
+        }
+
+        if (user.permissions.some((per) => per.name === 'read groups')) {
+            links.push({
+                route: 'groups.index',
+                name: 'groups',
+                icon: Group,
             });
         }
 

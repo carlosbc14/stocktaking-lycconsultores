@@ -13,8 +13,11 @@ return new class extends Migration
     {
         Schema::create('aisles', function (Blueprint $table) {
             $table->id();
-            $table->string('line_of_business');
             $table->string('code');
+            $table->foreignId('group_id')
+                ->nullable()
+                ->constrained('groups')
+                ->nullOnDelete();
             $table->foreignId('warehouse_id')
                 ->constrained('warehouses')
                 ->cascadeOnUpdate()

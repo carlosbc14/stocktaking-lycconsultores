@@ -70,7 +70,7 @@ class WarehouseController extends Controller
         if ($request->user()->company_id != $warehouse->company_id) abort(403);
 
         return Inertia::render('Company/Warehouses/Show', [
-            'warehouse' => $warehouse->load('aisles.locations'),
+            'warehouse' => $warehouse->load(['aisles.locations', 'aisles.group']),
         ]);
     }
 
@@ -82,7 +82,7 @@ class WarehouseController extends Controller
         if ($request->user()->company_id != $warehouse->company_id) abort(403);
 
         return Inertia::render('Company/Warehouses/Edit', [
-            'warehouse' => $warehouse->load('aisles.locations'),
+            'warehouse' => $warehouse->load(['aisles.locations', 'aisles.group']),
         ]);
     }
 

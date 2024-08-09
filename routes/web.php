@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AisleController;
 use App\Http\Controllers\CompanyController;
+use App\Http\Controllers\GroupController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
@@ -48,6 +49,7 @@ Route::middleware(LocaleCookie::class)->group(function () {
 
         Route::resource('/users', UserController::class)->only(['create', 'store', 'edit', 'update', 'destroy']);
         Route::resource('/warehouses', WarehouseController::class);
+        Route::resource('/groups', GroupController::class)->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
         Route::resource('/products', ProductController::class);
         Route::resource('/aisles', AisleController::class)->only(['create', 'store', 'edit', 'update', 'destroy']);
     });

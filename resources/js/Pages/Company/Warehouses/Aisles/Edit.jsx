@@ -1,10 +1,20 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { useTraslations } from '@/Contexts/TranslationsContext';
-import { Button, Input, Label, useToast } from '@/Components/ui';
+import {
+    Button,
+    Input,
+    Label,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+    useToast,
+} from '@/Components/ui';
 import { useForm } from '@inertiajs/react';
 import { InputError } from '@/Components';
 
-export default function Edit({ auth, aisle }) {
+export default function Edit({ auth, aisle, groups }) {
     const { __ } = useTraslations();
     const { toast } = useToast();
 
@@ -16,7 +26,7 @@ export default function Edit({ auth, aisle }) {
     }
 
     const { data, setData, patch, errors, processing } = useForm({
-        line_of_business: aisle.line_of_business,
+        group_id: aisle.group_id,
         code: aisle.code,
         columns,
         rows,
@@ -47,16 +57,26 @@ export default function Edit({ auth, aisle }) {
                     <form onSubmit={submit} className="mt-6 space-y-6">
                         <div className="grid grid-cols-6 gap-4">
                             <div className="col-span-6 lg:col-span-3">
-                                <Label htmlFor="line_of_business">{__('Line of business')}</Label>
+                                <Label htmlFor="group">{__('Group')}</Label>
 
-                                <Input
-                                    id="line_of_business"
-                                    className="mt-1 block w-full"
-                                    value={data.line_of_business}
-                                    onChange={(e) => setData('line_of_business', e.target.value)}
-                                />
+                                <Select
+                                    id="group"
+                                    onValueChange={(v) => setData('group_id', v)}
+                                    defaultValue={data.group_id ? data.group_id.toString() : ''}
+                                >
+                                    <SelectTrigger className="mt-1">
+                                        <SelectValue placeholder={__('Select a :name', { name: __('group') })} />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {groups.map((grp) => (
+                                            <SelectItem key={grp.id} value={grp.id.toString()}>
+                                                {grp.name}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
 
-                                <InputError className="mt-2" message={__(errors.line_of_business)} />
+                                <InputError className="mt-2" message={__(errors.group_id)} />
                             </div>
 
                             <div className="col-span-2 lg:col-span-1">

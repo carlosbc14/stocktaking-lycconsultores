@@ -1,16 +1,26 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { useTraslations } from '@/Contexts/TranslationsContext';
-import { Button, Input, Label, useToast } from '@/Components/ui';
+import {
+    Button,
+    Input,
+    Label,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+    useToast,
+} from '@/Components/ui';
 import { useForm } from '@inertiajs/react';
 import { InputError } from '@/Components';
 
-export default function Create({ auth, warehouse_id }) {
+export default function Create({ auth, warehouse_id, groups }) {
     const { __ } = useTraslations();
     const { toast } = useToast();
 
     const { data, setData, post, errors, processing } = useForm({
         warehouse_id,
-        aisles: [{ line_of_business: '', code: '', columns: '', rows: '' }],
+        aisles: [{ group_id: '', code: '', columns: '', rows: '' }],
     });
 
     const handleChange = (index, name, value) => {
@@ -22,7 +32,7 @@ export default function Create({ auth, warehouse_id }) {
     };
 
     const addAisle = () => {
-        setData('aisles', [...data.aisles, { line_of_business: '', code: '', columns: '', rows: '' }]);
+        setData('aisles', [...data.aisles, { group_id: '', code: '', columns: '', rows: '' }]);
     };
 
     const removeAisle = (index) => {
@@ -60,19 +70,27 @@ export default function Create({ auth, warehouse_id }) {
                             <div key={i}>
                                 <div className="grid grid-cols-6 gap-4">
                                     <div className="col-span-6 lg:col-span-3">
-                                        <Label htmlFor="line_of_business">{__('Line of business')}</Label>
+                                        <Label htmlFor="group">{__('Group')}</Label>
 
-                                        <Input
-                                            id={`line_of_business[${i}]`}
-                                            className="mt-1 block w-full"
-                                            value={asl.line_of_business}
-                                            onChange={(e) => handleChange(i, 'line_of_business', e.target.value)}
-                                        />
+                                        <Select
+                                            id={`group[${i}]`}
+                                            onValueChange={(v) => handleChange(i, 'group_id', v)}
+                                        >
+                                            <SelectTrigger className="mt-1">
+                                                <SelectValue
+                                                    placeholder={__('Select a :name', { name: __('group') })}
+                                                />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {groups.map((grp) => (
+                                                    <SelectItem key={grp.id} value={grp.id.toString()}>
+                                                        {grp.name}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
 
-                                        <InputError
-                                            className="mt-2"
-                                            message={__(errors[`aisles.${i}.line_of_business`])}
-                                        />
+                                        <InputError className="mt-2" message={__(errors[`aisles.${i}.group_id`])} />
                                     </div>
 
                                     <div className="col-span-2 lg:col-span-1">

@@ -1,15 +1,38 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { useTraslations } from '@/Contexts/TranslationsContext';
-import { Button, Input, Label, useToast } from '@/Components/ui';
+import {
+    Button,
+    Input,
+    Label,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+    Switch,
+    useToast,
+} from '@/Components/ui';
 import { useForm } from '@inertiajs/react';
 import { InputError } from '@/Components';
 
-export default function Create({ auth }) {
+export default function Create({ auth, groups }) {
     const { __ } = useTraslations();
     const { toast } = useToast();
 
     const { data, setData, post, errors, processing } = useForm({
-        products: [{ code_sku: '', description: '', institution: '' }],
+        products: [
+            {
+                code: '',
+                description: '',
+                group_id: '',
+                unit: '',
+                origin: '',
+                currency: '',
+                price: '',
+                batch: true,
+                enabled: true,
+            },
+        ],
     });
 
     const handleChange = (index, name, value) => {
@@ -21,7 +44,20 @@ export default function Create({ auth }) {
     };
 
     const addProduct = () => {
-        setData('products', [...data.products, { code_sku: '', description: '', institution: '' }]);
+        setData('products', [
+            ...data.products,
+            {
+                code: '',
+                description: '',
+                group_id: '',
+                unit: '',
+                origin: '',
+                currency: '',
+                price: '',
+                batch: true,
+                enabled: true,
+            },
+        ]);
     };
 
     const removeProduct = (index) => {
@@ -59,21 +95,21 @@ export default function Create({ auth }) {
                     <form onSubmit={submit} className="mt-6 space-y-6">
                         {data.products.map((prdct, i) => (
                             <div key={i}>
-                                <div className="grid grid-cols-6 gap-4">
-                                    <div className="col-span-2 lg:col-span-1">
-                                        <Label htmlFor="code_sku">{__('Code')} SKU</Label>
+                                <div className="grid grid-cols-12 gap-4">
+                                    <div className="col-span-4 lg:col-span-2">
+                                        <Label htmlFor="code">{__('Code')}</Label>
 
                                         <Input
-                                            id="code_sku"
-                                            value={prdct.code_sku}
+                                            id="code"
+                                            value={prdct.code}
                                             className="mt-1 block w-full"
-                                            onChange={(e) => handleChange(i, 'code_sku', e.target.value)}
+                                            onChange={(e) => handleChange(i, 'code', e.target.value)}
                                         />
 
-                                        <InputError message={__(errors[`products.${i}.code_sku`])} className="mt-2" />
+                                        <InputError message={__(errors[`products.${i}.code`])} className="mt-2" />
                                     </div>
 
-                                    <div className="col-span-6 lg:col-span-3">
+                                    <div className="col-span-8 lg:col-span-5">
                                         <Label htmlFor="description">{__('Description')}</Label>
 
                                         <Input
@@ -89,20 +125,105 @@ export default function Create({ auth }) {
                                         />
                                     </div>
 
-                                    <div className="col-span-4 lg:col-span-2">
-                                        <Label htmlFor="institution">{__('Institution')}</Label>
+                                    <div className="col-span-6 lg:col-span-3">
+                                        <Label htmlFor="group">{__('Group')}</Label>
+
+                                        <Select id="group" onValueChange={(v) => handleChange(i, 'group_id', v)}>
+                                            <SelectTrigger className="mt-1">
+                                                <SelectValue
+                                                    placeholder={__('Select a :name', { name: __('group') })}
+                                                />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {groups.map((grp) => (
+                                                    <SelectItem key={grp.id} value={grp.id.toString()}>
+                                                        {grp.name}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+
+                                        <InputError message={__(errors[`products.${i}.group_id`])} className="mt-2" />
+                                    </div>
+
+                                    <div className="col-span-3 lg:col-span-2">
+                                        <Label htmlFor="unit">{__('Unit')}</Label>
 
                                         <Input
-                                            id="institution"
-                                            value={prdct.institution}
+                                            id="unit"
+                                            value={prdct.unit}
                                             className="mt-1 block w-full"
-                                            onChange={(e) => handleChange(i, 'institution', e.target.value)}
+                                            onChange={(e) => handleChange(i, 'unit', e.target.value)}
                                         />
 
-                                        <InputError
-                                            message={__(errors[`products.${i}.institution`])}
-                                            className="mt-2"
+                                        <InputError message={__(errors[`products.${i}.unit`])} className="mt-2" />
+                                    </div>
+
+                                    <div className="col-span-3 lg:col-span-2">
+                                        <Label htmlFor="currency">{__('Currency')}</Label>
+
+                                        <Input
+                                            id="currency"
+                                            value={prdct.currency}
+                                            className="mt-1 block w-full"
+                                            onChange={(e) => handleChange(i, 'currency', e.target.value)}
                                         />
+
+                                        <InputError message={__(errors[`products.${i}.currency`])} className="mt-2" />
+                                    </div>
+
+                                    <div className="col-span-8 lg:col-span-5">
+                                        <Label htmlFor="origin">{__('Origin')}</Label>
+
+                                        <Input
+                                            id="origin"
+                                            value={prdct.origin}
+                                            className="mt-1 block w-full"
+                                            onChange={(e) => handleChange(i, 'origin', e.target.value)}
+                                        />
+
+                                        <InputError message={__(errors[`products.${i}.origin`])} className="mt-2" />
+                                    </div>
+
+                                    <div className="col-span-4 lg:col-span-3">
+                                        <Label htmlFor="price">{__('Price')}</Label>
+
+                                        <Input
+                                            id="price"
+                                            className="mt-1 block w-full"
+                                            type="number"
+                                            min="0"
+                                            value={prdct.price}
+                                            onChange={(e) => handleChange(i, 'price', e.target.value)}
+                                        />
+
+                                        <InputError className="mt-2" message={__(errors.price)} />
+                                    </div>
+
+                                    <div className="col-span-6 lg:col-span-1">
+                                        <Label htmlFor="batch">{__('Batch')}</Label>
+
+                                        <Switch
+                                            id="batch"
+                                            className="mt-3 block"
+                                            checked={prdct.batch}
+                                            onCheckedChange={(v) => handleChange(i, 'batch', v)}
+                                        />
+
+                                        <InputError message={__(errors[`products.${i}.batch`])} className="mt-2" />
+                                    </div>
+
+                                    <div className="col-span-6 lg:col-span-1">
+                                        <Label htmlFor="enabled">{__('Enabled')}</Label>
+
+                                        <Switch
+                                            id="enabled"
+                                            className="mt-3 block"
+                                            checked={prdct.enabled}
+                                            onCheckedChange={(v) => handleChange(i, 'enabled', v)}
+                                        />
+
+                                        <InputError message={__(errors[`products.${i}.enabled`])} className="mt-2" />
                                     </div>
                                 </div>
 

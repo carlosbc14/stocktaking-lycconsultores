@@ -27,16 +27,20 @@ class ProductController extends Controller
         $products = $request->user()->company->products;
 
         return Inertia::render('Company/Products/Index', [
-            'products' => $products,
+            'products' => $products->load('group'),
         ]);
     }
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create(): Response
+    public function create(Request $request): Response
     {
-        return Inertia::render('Company/Products/Create');
+        $groups = $request->user()->company->groups;
+
+        return Inertia::render('Company/Products/Create', [
+            'groups' => $groups,
+        ]);
     }
 
     /**
@@ -45,11 +49,19 @@ class ProductController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'products.*.code_sku' => ['required', 'string', 'max:255', Rule::unique('products')->where(function ($query) use ($request) {
+            'products.*.code' => ['required', 'string', 'max:255', Rule::unique('products')->where(function ($query) use ($request) {
                 return $query->where('company_id', $request->user()->company_id);
             })],
             'products.*.description' => 'required|string|max:255',
-            'products.*.institution' => 'required|string|max:255',
+            'products.*.unit' => 'nullable|string|max:255',
+            'products.*.origin' => 'nullable|string|max:255',
+            'products.*.currency' => 'nullable|string|max:255',
+            'products.*.price' => 'nullable|numeric|min:0',
+            'products.*.batch' => 'boolean',
+            'products.*.enabled' => 'boolean',
+            'products.*.group_id' => ['nullable', Rule::exists('groups', 'id')->where(function ($query) use ($request) {
+                return $query->where('company_id', $request->user()->company_id);
+            })],
         ]);
 
         foreach ($validated['products'] as &$product) {
@@ -70,8 +82,11 @@ class ProductController extends Controller
     {
         if ($request->user()->company_id != $product->company_id) abort(403);
 
+        $groups = $request->user()->company->groups;
+
         return Inertia::render('Company/Products/Edit', [
             'product' => $product,
+            'groups' => $groups,
         ]);
     }
 
@@ -83,11 +98,19 @@ class ProductController extends Controller
         if ($request->user()->company_id != $product->company_id) abort(403);
 
         $validated = $request->validate([
-            'code_sku' => ['string', 'max:255', Rule::unique('products')->where(function ($query) use ($product) {
+            'code' => ['string', 'max:255', Rule::unique('products')->where(function ($query) use ($product) {
                 return $query->where('company_id', $product->company_id)->where('id', '!=', $product->id);
             })],
             'description' => 'string|max:255',
-            'institution' => 'string|max:255',
+            'unit' => 'nullable|string|max:255',
+            'origin' => 'nullable|string|max:255',
+            'currency' => 'nullable|string|max:255',
+            'price' => 'nullable|numeric|min:0',
+            'batch' => 'boolean',
+            'enabled' => 'boolean',
+            'group_id' => ['nullable', Rule::exists('groups', 'id')->where(function ($query) use ($product) {
+                return $query->where('company_id', $product->company_id);
+            })],
         ]);
 
         $product->update($validated);

@@ -25,8 +25,11 @@ class AisleController extends Controller
      */
     public function create(Request $request): Response
     {
+        $groups = $request->user()->company->groups;
+
         return Inertia::render('Company/Warehouses/Aisles/Create', [
             'warehouse_id' => $request->warehouse_id,
+            'groups' => $groups,
         ]);
     }
 
@@ -40,9 +43,11 @@ class AisleController extends Controller
         if ($request->user()->company_id != $warehouse->company_id) abort(403);
 
         $validated = $request->validate([
-            'aisles.*.line_of_business' => 'required|string|max:255',
             'aisles.*.code' => ['required', 'distinct', 'regex:/^[A-Za-z0-9]{2}$/', Rule::unique('aisles')->where(function ($query) use ($request) {
                 return $query->where('warehouse_id', $request->warehouse_id);
+            })],
+            'aisles.*.group_id' => ['nullable', Rule::exists('groups', 'id')->where(function ($query) use ($request) {
+                return $query->where('company_id', $request->user()->company_id);
             })],
             'aisles.*.columns' => 'required|integer|min:1|max:100',
             'aisles.*.rows' => 'required|integer|min:1|max:100',
@@ -50,8 +55,8 @@ class AisleController extends Controller
 
         foreach ($validated['aisles'] as &$aisle_validated) {
             $aisle = Aisle::create([
-                'line_of_business' => $aisle_validated['line_of_business'],
                 'code' => $aisle_validated['code'],
+                'group_id' => isset($aisle_validated['group_id']) ? $aisle_validated['group_id'] : null,
                 'warehouse_id' => $warehouse->id,
             ]);
 
@@ -81,8 +86,11 @@ class AisleController extends Controller
     {
         if ($request->user()->company_id != $aisle->warehouse->company_id) abort(403);
 
+        $groups = $request->user()->company->groups;
+
         return Inertia::render('Company/Warehouses/Aisles/Edit', [
             'aisle' => $aisle->load('locations'),
+            'groups' => $groups,
         ]);
     }
 
@@ -94,9 +102,11 @@ class AisleController extends Controller
         if ($request->user()->company_id != $aisle->warehouse->company_id) abort(403);
 
         $validated = $request->validate([
-            'line_of_business' => 'string|max:255',
             'code' => ['regex:/^[A-Za-z0-9]{2}$/', Rule::unique('aisles')->where(function ($query) use ($aisle) {
                 return $query->where('warehouse_id', $aisle->warehouse_id)->where('id', '!=', $aisle->id);
+            })],
+            'group_id' => ['nullable', Rule::exists('groups', 'id')->where(function ($query) use ($request) {
+                return $query->where('company_id', $request->user()->company_id);
             })],
             'columns' => 'integer|min:1|max:100',
             'rows' => 'integer|min:1|max:100',

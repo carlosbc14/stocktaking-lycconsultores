@@ -10,10 +10,15 @@ class Aisle extends Model
     use HasFactory;
 
     protected $fillable = [
-        'line_of_business',
         'code',
+        'group_id',
         'warehouse_id',
     ];
+
+    public function group()
+    {
+        return $this->belongsTo(Group::class);
+    }
 
     public function warehouse()
     {

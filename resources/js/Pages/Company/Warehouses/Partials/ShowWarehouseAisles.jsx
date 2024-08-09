@@ -47,7 +47,7 @@ export default function ShowWarehouseAisles({
                 {!aisles.length && <TableCaption>{__('No Content')}</TableCaption>}
                 <TableHeader>
                     <TableRow>
-                        <TableHead>{__('Line of business')}</TableHead>
+                        <TableHead>{__('Group')}</TableHead>
                         <TableHead className="w-28">{__('Code')}</TableHead>
                         <TableHead className="w-28">{__('Columns')}</TableHead>
                         <TableHead className="w-28">{__('Rows')}</TableHead>
@@ -64,7 +64,7 @@ export default function ShowWarehouseAisles({
                         }
                         return (
                             <TableRow key={asl.id}>
-                                <TableCell>{asl.line_of_business}</TableCell>
+                                <TableCell>{asl.group ? asl.group.name : '-'}</TableCell>
                                 <TableCell>{asl.code}</TableCell>
                                 <TableCell>{columns}</TableCell>
                                 <TableCell>{rows}</TableCell>

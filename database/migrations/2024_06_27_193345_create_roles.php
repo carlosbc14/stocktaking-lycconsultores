@@ -26,6 +26,11 @@ return new class extends Migration
         Permission::create(['name' => 'edit warehouses']);
         Permission::create(['name' => 'delete warehouses']);
 
+        Permission::create(['name' => 'write groups']);
+        Permission::create(['name' => 'read groups']);
+        Permission::create(['name' => 'edit groups']);
+        Permission::create(['name' => 'delete groups']);
+
         Permission::create(['name' => 'write products']);
         Permission::create(['name' => 'read products']);
         Permission::create(['name' => 'edit products']);
@@ -35,6 +40,7 @@ return new class extends Migration
             'write company', 'read company', 'edit company', 'delete company',
             'write users', 'read users', 'edit users', 'delete users',
             'write warehouses', 'read warehouses', 'edit warehouses', 'delete warehouses',
+            'write groups', 'read groups', 'edit groups', 'delete groups',
             'write products', 'read products', 'edit products', 'delete products',
         ]);
 
@@ -42,6 +48,7 @@ return new class extends Migration
             'read company',
             'write users', 'read users', 'edit users', 'delete users',
             'write warehouses', 'read warehouses', 'edit warehouses', 'delete warehouses',
+            'write groups', 'read groups', 'edit groups', 'delete groups',
             'write products', 'read products', 'edit products', 'delete products',
         ]);
 
