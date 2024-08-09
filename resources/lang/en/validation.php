@@ -4,12 +4,20 @@ declare(strict_types=1);
 
 return [
     'attributes' => [
-        'aisles.*.line_of_business' => 'line of business',
         'aisles.*.code'            => 'code',
         'aisles.*.columns'         => 'columns',
+        'aisles.*.group_id'        => 'group',
         'aisles.*.rows'            => 'rows',
-        'products.*.code_sku'      => 'code sku',
+        'group_id'                 => 'group',
+        'groups.*.group_id'        => 'group',
+        'products.*.batch'         => 'batch',
+        'products.*.code'          => 'code',
+        'products.*.currency'      => 'currency',
         'products.*.description'   => 'description',
-        'products.*.institution'   => 'institution',
+        'products.*.enabled'       => 'enabled',
+        'products.*.group_id'      => 'group',
+        'products.*.origin'        => 'origin',
+        'products.*.price'         => 'price',
+        'products.*.unit'          => 'unit',
     ],
 ];
