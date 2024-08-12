@@ -50,7 +50,9 @@ Route::middleware(LocaleCookie::class)->group(function () {
         Route::resource('/users', UserController::class)->only(['create', 'store', 'edit', 'update', 'destroy']);
         Route::resource('/warehouses', WarehouseController::class);
         Route::resource('/groups', GroupController::class)->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
-        Route::resource('/products', ProductController::class);
+        Route::resource('/products', ProductController::class)->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
+        Route::get('/products/export', [ProductController::class, 'export'])->name('products.export');
+        Route::post('/products/import', [ProductController::class, 'import'])->name('products.import');
         Route::resource('/aisles', AisleController::class)->only(['create', 'store', 'edit', 'update', 'destroy']);
     });
 

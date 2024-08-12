@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
+use Spatie\SimpleExcel\SimpleExcelReader;
+use Spatie\SimpleExcel\SimpleExcelWriter;
 
 class ProductController extends Controller
 {
@@ -28,7 +30,42 @@ class ProductController extends Controller
 
         return Inertia::render('Company/Products/Index', [
             'products' => $products->load('group'),
+            'failures' => session('failures', []),
         ]);
+    }
+
+    /**
+     * Export a listing of the resource.
+     */
+    public function export(Request $request): void
+    {
+        $rows = [];
+
+        $request->user()->company->products->load('group')->each(function ($product) use (&$rows) {
+            $rows[] = [
+                $product['code'],
+                $product['description'],
+                $product['group'] ? $product['group']['name'] : '',
+                $product['unit'] ?? '',
+                $product['origin'] ?? '',
+                $product['currency'] ?? '',
+                $product['price'] ?? '',
+                $product['batch'] ? __('Yes')[0] : __('No')[0],
+                $product['enabled'] ? __('Yes')[0] : __('No')[0],
+            ];
+        });
+
+        SimpleExcelWriter::streamDownload('products.xlsx')->addHeader([
+            __('Code'),
+            __('Description'),
+            __('Group'),
+            __('Unit'),
+            __('Origin'),
+            __('Currency'),
+            __('Price'),
+            __('Batch'),
+            __('Enabled'),
+        ])->addRows($rows);
     }
 
     /**
@@ -73,6 +110,45 @@ class ProductController extends Controller
         Product::insert($validated['products']);
 
         return redirect(route('products.index'));
+    }
+
+    /**
+     * Import a newly created resource in storage.
+     */
+    public function import(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'excel' => 'required|file|mimes:xlsx',
+        ]);
+
+        $failures = [];
+
+        $rows = SimpleExcelReader::create($request->excel, 'xlsx')->getRows();
+        $rows->each(function (array $row, int $key) use ($request, &$failures) {
+            $group_id = null;
+            if (!empty($row[__('Group')])) {
+                $group_id = $request->user()->company->groups->where('name', $row[__('Group')])->value('id');
+            }
+
+            try {
+                Product::create([
+                    'code' => $row[__('Code')] ?? null,
+                    'description' => $row[__('Description')] ?? null,
+                    'unit' => $row[__('Unit')] ?? null,
+                    'origin' => $row[__('Origin')] ?? null,
+                    'currency' => $row[__('Currency')] ?? null,
+                    'price' => $row[__('Price')] ?? null,
+                    'batch' => !empty($row[__('Batch')]) && $row[__('Batch')] == __('Yes')[0],
+                    'enabled' => !empty($row[__('Enabled')]) && $row[__('Enabled')] == __('Yes')[0],
+                    'group_id' => $group_id,
+                    'company_id' => $request->user()->company_id,
+                ]);
+            } catch (\Throwable $th) {
+                $failures[] = $key + 2;
+            }
+        });
+
+        return redirect(route('products.index'))->with('failures', $failures);
     }
 
     /**

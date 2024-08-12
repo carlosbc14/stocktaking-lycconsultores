@@ -9,6 +9,7 @@ import {
     DialogHeader,
     DialogTitle,
     DialogTrigger,
+    Input,
     Table,
     TableBody,
     TableCaption,
@@ -17,21 +18,75 @@ import {
     TableHeader,
     TableRow,
     buttonVariants,
+    useToast,
 } from '@/Components/ui';
-import { Link } from '@inertiajs/react';
+import { Link, useForm } from '@inertiajs/react';
+import { InputError } from '@/Components';
 
-export default function Index({ auth, products }) {
+export default function Index({ auth, products, failures }) {
     const { __ } = useTraslations();
+    const { toast } = useToast();
+
+    const { setData, post, errors, processing } = useForm({ excel: null });
 
     const canCreate = auth.user.permissions.some((per) => per.name === 'write products');
     const canEdit = auth.user.permissions.some((per) => per.name === 'edit products');
     const canDelete = auth.user.permissions.some((per) => per.name === 'delete products');
 
+    const handleImport = () => {
+        post(route('products.import'), {
+            preserveScroll: true,
+            onSuccess: () =>
+                toast({
+                    title: __('Import completed'),
+                }),
+        });
+    };
+
     return (
         <AuthenticatedLayout user={auth.user} title={__('Products')}>
             <div className="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
                 {canCreate && (
-                    <div className="flex justify-end mb-6">
+                    <div className="flex justify-end gap-4 mb-6">
+                        <a href={route('products.export')}>
+                            <Button>{__('Export :name', { name: __('products') })}</Button>
+                        </a>
+
+                        <Dialog>
+                            <DialogTrigger asChild>
+                                <Button>{__('Import :name', { name: __('products') })}</Button>
+                            </DialogTrigger>
+                            <DialogContent aria-describedby={undefined}>
+                                <DialogHeader>
+                                    <DialogTitle>{__('Upload Excel')}</DialogTitle>
+                                </DialogHeader>
+
+                                <Input
+                                    id="excel"
+                                    type="file"
+                                    onChange={(e) => setData('excel', e.target.files[0] ?? null)}
+                                />
+
+                                <InputError message={__(errors.excel)} className="mt-2" />
+
+                                {failures.length > 0 && (
+                                    <InputError
+                                        message={__('Rows :rows were not imported.', { rows: failures.join(', ') })}
+                                        className="max-h-40 overflow-y-auto mt-2"
+                                    />
+                                )}
+
+                                <DialogFooter>
+                                    <DialogClose asChild>
+                                        <Button variant="outline">{__('Cancel')}</Button>
+                                    </DialogClose>
+                                    <Button onClick={handleImport} disabled={processing}>
+                                        {__('Load')}
+                                    </Button>
+                                </DialogFooter>
+                            </DialogContent>
+                        </Dialog>
+
                         <Link href={route('products.create')}>
                             <Button>{__('Add :name', { name: __('products') })}</Button>
                         </Link>
