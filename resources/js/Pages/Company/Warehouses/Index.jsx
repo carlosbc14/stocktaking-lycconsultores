@@ -9,16 +9,15 @@ import {
     DialogHeader,
     DialogTitle,
     DialogTrigger,
-    Table,
-    TableBody,
-    TableCaption,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
     buttonVariants,
 } from '@/Components/ui';
 import { Link } from '@inertiajs/react';
+import { ArrowUpDown, MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
+import { DataTable } from '@/Components';
 
 export default function Index({ auth, warehouses }) {
     const { __ } = useTraslations();
@@ -26,6 +25,107 @@ export default function Index({ auth, warehouses }) {
     const canCreate = auth.user.permissions.some((per) => per.name === 'write warehouses');
     const canEdit = auth.user.permissions.some((per) => per.name === 'edit warehouses');
     const canDelete = auth.user.permissions.some((per) => per.name === 'delete warehouses');
+
+    const columns = [
+        {
+            accessorKey: 'code',
+            header: <div className="uppercase">{__('Code')}</div>,
+            cell: ({ row }) => {
+                const warehouse = row.original;
+
+                return (
+                    <Link
+                        href={route('warehouses.show', warehouse.id)}
+                        className={`${buttonVariants({ variant: 'link' })} pr-0`}
+                    >
+                        {warehouse.code}
+                    </Link>
+                );
+            },
+        },
+        {
+            accessorKey: 'name',
+            header: ({ column }) => (
+                <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
+                    {__('Name')}
+                    <ArrowUpDown className="ml-2 h-4 w-4" />
+                </Button>
+            ),
+            cell: ({ row }) => {
+                const warehouse = row.original;
+
+                return (
+                    <Link
+                        href={route('warehouses.show', warehouse.id)}
+                        className={`${buttonVariants({ variant: 'link' })} pr-0`}
+                    >
+                        {warehouse.name}
+                    </Link>
+                );
+            },
+        },
+    ];
+
+    if (canEdit || canDelete) {
+        columns.push({
+            id: 'actions',
+            enableHiding: false,
+            cell: ({ row }) => {
+                const warehouse = row.original;
+
+                return (
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" className="h-8 w-8 p-0">
+                                <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            {canEdit && (
+                                <Link href={route('warehouses.edit', warehouse.id)} className="w-full">
+                                    <DropdownMenuItem>
+                                        <Pencil className="mr-2 h-4 w-4" /> {__('Edit')}
+                                    </DropdownMenuItem>
+                                </Link>
+                            )}
+                            {canDelete && (
+                                <Dialog>
+                                    <DialogTrigger asChild>
+                                        <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-red-600">
+                                            <Trash2 className="mr-2 h-4 w-4" /> {__('Delete')}
+                                        </DropdownMenuItem>
+                                    </DialogTrigger>
+                                    <DialogContent aria-describedby={undefined}>
+                                        <DialogHeader>
+                                            <DialogTitle>
+                                                {__('Are you sure you want to delete the warehouse :name?', {
+                                                    name: warehouse.name,
+                                                })}
+                                            </DialogTitle>
+                                        </DialogHeader>
+
+                                        <DialogFooter>
+                                            <DialogClose asChild>
+                                                <Button variant="outline">{__('Cancel')}</Button>
+                                            </DialogClose>
+                                            <Link
+                                                href={route('warehouses.destroy', warehouse.id)}
+                                                method="delete"
+                                                as="Button"
+                                                className={buttonVariants({ variant: 'destructive' })}
+                                            >
+                                                {__('Delete')}
+                                            </Link>
+                                        </DialogFooter>
+                                    </DialogContent>
+                                </Dialog>
+                            )}
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                );
+            },
+        });
+    }
 
     return (
         <AuthenticatedLayout user={auth.user} title={__('Warehouses')}>
@@ -37,70 +137,8 @@ export default function Index({ auth, warehouses }) {
                         </Link>
                     </div>
                 )}
-                <Table>
-                    {!warehouses.length && <TableCaption>{__('No Content')}</TableCaption>}
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead>{__('Code')}</TableHead>
-                            <TableHead>{__('Name')}</TableHead>
-                            {(canEdit || canDelete) && <TableHead className="w-56">{__('Options')}</TableHead>}
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {warehouses.map((wrhs) => (
-                            <TableRow key={wrhs.id}>
-                                <TableCell className="font-medium">
-                                    <Link href={route('warehouses.show', wrhs.id)}>{wrhs.code}</Link>
-                                </TableCell>
-                                <TableCell>
-                                    <Link href={route('warehouses.show', wrhs.id)}>{wrhs.name}</Link>
-                                </TableCell>
-                                {(canEdit || canDelete) && (
-                                    <TableCell>
-                                        {canEdit && (
-                                            <Link href={route('warehouses.edit', wrhs.id)}>
-                                                <Button className="mr-2">{__('Edit')}</Button>
-                                            </Link>
-                                        )}
-                                        {canDelete && (
-                                            <Dialog>
-                                                <DialogTrigger asChild>
-                                                    <Button variant="destructive">{__('Delete')}</Button>
-                                                </DialogTrigger>
-                                                <DialogContent>
-                                                    <DialogHeader>
-                                                        <DialogTitle>
-                                                            {__(
-                                                                'Are you sure you want to delete the warehouse :name?',
-                                                                {
-                                                                    name: wrhs.name,
-                                                                }
-                                                            )}
-                                                        </DialogTitle>
-                                                    </DialogHeader>
 
-                                                    <DialogFooter>
-                                                        <DialogClose asChild>
-                                                            <Button variant="outline">{__('Cancel')}</Button>
-                                                        </DialogClose>
-                                                        <Link
-                                                            href={route('warehouses.destroy', wrhs.id)}
-                                                            method="delete"
-                                                            as="Button"
-                                                            className={buttonVariants({ variant: 'destructive' })}
-                                                        >
-                                                            {__('Delete')}
-                                                        </Link>
-                                                    </DialogFooter>
-                                                </DialogContent>
-                                            </Dialog>
-                                        )}
-                                    </TableCell>
-                                )}
-                            </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
+                <DataTable data={warehouses} columns={columns} filterBy="name" />
             </div>
         </AuthenticatedLayout>
     );

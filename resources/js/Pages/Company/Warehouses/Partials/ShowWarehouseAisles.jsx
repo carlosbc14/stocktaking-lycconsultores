@@ -9,15 +9,14 @@ import {
     DialogHeader,
     DialogTitle,
     DialogTrigger,
-    Table,
-    TableBody,
-    TableCaption,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
 } from '@/Components/ui';
 import { Link } from '@inertiajs/react';
+import { DataTable } from '@/Components';
+import { ArrowUpDown, MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
 
 export default function ShowWarehouseAisles({
     warehouse_id = null,
@@ -28,6 +27,113 @@ export default function ShowWarehouseAisles({
     className = '',
 }) {
     const { __ } = useTraslations();
+
+    const columns = [
+        {
+            accessorKey: 'group.name',
+            header: ({ column }) => (
+                <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
+                    {__('Group')}
+                    <ArrowUpDown className="ml-2 h-4 w-4" />
+                </Button>
+            ),
+            cell: ({ row }) => (row.original.group ? row.original.group.name : '-'),
+        },
+        {
+            accessorKey: 'code',
+            header: ({ column }) => (
+                <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
+                    {__('Code')}
+                    <ArrowUpDown className="ml-2 h-4 w-4" />
+                </Button>
+            ),
+        },
+        {
+            id: 'columns',
+            header: <div className="uppercase">{__('Columns')}</div>,
+            cell: ({ row }) => {
+                let columns = 0;
+                for (let location of row.original.locations) {
+                    if (location.column > columns) columns = location.column;
+                }
+
+                return columns;
+            },
+        },
+        {
+            id: 'rows',
+            header: <div className="uppercase">{__('Rows')}</div>,
+            cell: ({ row }) => {
+                let rows = 0;
+                for (let location of row.original.locations) {
+                    if (location.row > rows) rows = location.row;
+                }
+
+                return rows;
+            },
+        },
+    ];
+
+    if (canEdit || canDelete) {
+        columns.push({
+            id: 'actions',
+            enableHiding: false,
+            cell: ({ row }) => {
+                const aisle = row.original;
+
+                return (
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" className="h-8 w-8 p-0">
+                                <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            {canEdit && (
+                                <Link href={route('aisles.edit', aisle.id)} className="w-full">
+                                    <DropdownMenuItem>
+                                        <Pencil className="mr-2 h-4 w-4" /> {__('Edit')}
+                                    </DropdownMenuItem>
+                                </Link>
+                            )}
+                            {canDelete && (
+                                <Dialog>
+                                    <DialogTrigger asChild>
+                                        <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-red-600">
+                                            <Trash2 className="mr-2 h-4 w-4" /> {__('Delete')}
+                                        </DropdownMenuItem>
+                                    </DialogTrigger>
+                                    <DialogContent aria-describedby={undefined}>
+                                        <DialogHeader>
+                                            <DialogTitle>
+                                                {__('Are you sure you want to delete the aisle :name?', {
+                                                    name: aisle.code,
+                                                })}
+                                            </DialogTitle>
+                                        </DialogHeader>
+
+                                        <DialogFooter>
+                                            <DialogClose asChild>
+                                                <Button variant="outline">{__('Cancel')}</Button>
+                                            </DialogClose>
+                                            <Link
+                                                href={route('aisles.destroy', aisle.id)}
+                                                method="delete"
+                                                as="Button"
+                                                className={buttonVariants({ variant: 'destructive' })}
+                                            >
+                                                {__('Delete')}
+                                            </Link>
+                                        </DialogFooter>
+                                    </DialogContent>
+                                </Dialog>
+                            )}
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                );
+            },
+        });
+    }
 
     return (
         <section className={className}>
@@ -43,75 +149,7 @@ export default function ShowWarehouseAisles({
                 )}
             </header>
 
-            <Table className="mt-6">
-                {!aisles.length && <TableCaption>{__('No Content')}</TableCaption>}
-                <TableHeader>
-                    <TableRow>
-                        <TableHead>{__('Group')}</TableHead>
-                        <TableHead className="w-28">{__('Code')}</TableHead>
-                        <TableHead className="w-28">{__('Columns')}</TableHead>
-                        <TableHead className="w-28">{__('Rows')}</TableHead>
-                        {(canEdit || canDelete) && <TableHead className="w-56">{__('Options')}</TableHead>}
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    {aisles.map((asl) => {
-                        let columns = 0,
-                            rows = 0;
-                        for (let location of asl.locations) {
-                            if (location.column > columns) columns = location.column;
-                            if (location.row > rows) rows = location.row;
-                        }
-                        return (
-                            <TableRow key={asl.id}>
-                                <TableCell>{asl.group ? asl.group.name : '-'}</TableCell>
-                                <TableCell>{asl.code}</TableCell>
-                                <TableCell>{columns}</TableCell>
-                                <TableCell>{rows}</TableCell>
-                                {(canEdit || canDelete) && (
-                                    <TableCell>
-                                        {canEdit && (
-                                            <Link href={route('aisles.edit', asl.id)}>
-                                                <Button className="mr-2">{__('Edit')}</Button>
-                                            </Link>
-                                        )}
-                                        {canDelete && (
-                                            <Dialog>
-                                                <DialogTrigger asChild>
-                                                    <Button variant="destructive">{__('Delete')}</Button>
-                                                </DialogTrigger>
-                                                <DialogContent>
-                                                    <DialogHeader>
-                                                        <DialogTitle>
-                                                            {__('Are you sure you want to delete the aisle :name?', {
-                                                                name: asl.code,
-                                                            })}
-                                                        </DialogTitle>
-                                                    </DialogHeader>
-
-                                                    <DialogFooter>
-                                                        <DialogClose asChild>
-                                                            <Button variant="outline">{__('Cancel')}</Button>
-                                                        </DialogClose>
-                                                        <Link
-                                                            href={route('aisles.destroy', asl.id)}
-                                                            method="delete"
-                                                            as="Button"
-                                                            className={buttonVariants({ variant: 'destructive' })}
-                                                        >
-                                                            {__('Delete')}
-                                                        </Link>
-                                                    </DialogFooter>
-                                                </DialogContent>
-                                            </Dialog>
-                                        )}
-                                    </TableCell>
-                                )}
-                            </TableRow>
-                        );
-                    })}
-                </TableBody>
-            </Table>
+            <DataTable data={aisles} columns={columns} filterBy="code" />
         </section>
     );
 }

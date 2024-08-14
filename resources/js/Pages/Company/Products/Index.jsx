@@ -10,18 +10,16 @@ import {
     DialogTitle,
     DialogTrigger,
     Input,
-    Table,
-    TableBody,
-    TableCaption,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
     buttonVariants,
     useToast,
 } from '@/Components/ui';
 import { Link, useForm } from '@inertiajs/react';
-import { InputError } from '@/Components';
+import { DataTable, InputError } from '@/Components';
+import { ArrowUpDown, MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
 
 export default function Index({ auth, products, failures }) {
     const { __ } = useTraslations();
@@ -32,6 +30,123 @@ export default function Index({ auth, products, failures }) {
     const canCreate = auth.user.permissions.some((per) => per.name === 'write products');
     const canEdit = auth.user.permissions.some((per) => per.name === 'edit products');
     const canDelete = auth.user.permissions.some((per) => per.name === 'delete products');
+
+    const columns = [
+        {
+            accessorKey: 'code',
+            header: <div className="uppercase">{__('Code')}</div>,
+        },
+        {
+            accessorKey: 'description',
+            header: ({ column }) => (
+                <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
+                    {__('Description')}
+                    <ArrowUpDown className="ml-2 h-4 w-4" />
+                </Button>
+            ),
+        },
+        {
+            accessorKey: 'group.name',
+            header: ({ column }) => (
+                <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
+                    {__('Group')}
+                    <ArrowUpDown className="ml-2 h-4 w-4" />
+                </Button>
+            ),
+            cell: ({ row }) => (row.original.group ? row.original.group.name : '-'),
+        },
+        {
+            accessorKey: 'unit',
+            header: <div className="uppercase">{__('Unit')}</div>,
+            cell: ({ row }) => row.original.unit ?? '-',
+        },
+        {
+            accessorKey: 'origin',
+            header: <div className="uppercase">{__('Origin')}</div>,
+            cell: ({ row }) => row.original.origin ?? '-',
+        },
+        {
+            accessorKey: 'currency',
+            header: <div className="uppercase">{__('Currency')}</div>,
+            cell: ({ row }) => row.original.currency ?? '-',
+        },
+        {
+            accessorKey: 'price',
+            header: <div className="uppercase">{__('Price')}</div>,
+            cell: ({ row }) => row.original.price ?? '-',
+        },
+        {
+            accessorKey: 'batch',
+            header: <div className="uppercase">{__('Batch')}</div>,
+            cell: ({ row }) => (row.original.batch ? __('Yes') : __('No')),
+        },
+        {
+            accessorKey: 'enabled',
+            header: <div className="uppercase">{__('Enabled')}</div>,
+            cell: ({ row }) => (row.original.enabled ? __('Yes') : __('No')),
+        },
+    ];
+
+    if (canEdit || canDelete) {
+        columns.push({
+            id: 'actions',
+            enableHiding: false,
+            cell: ({ row }) => {
+                const product = row.original;
+
+                return (
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" className="h-8 w-8 p-0">
+                                <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            {canEdit && (
+                                <Link href={route('products.edit', product.id)} className="w-full">
+                                    <DropdownMenuItem>
+                                        <Pencil className="mr-2 h-4 w-4" /> {__('Edit')}
+                                    </DropdownMenuItem>
+                                </Link>
+                            )}
+                            {canDelete && (
+                                <Dialog>
+                                    <DialogTrigger asChild>
+                                        <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-red-600">
+                                            <Trash2 className="mr-2 h-4 w-4" /> {__('Delete')}
+                                        </DropdownMenuItem>
+                                    </DialogTrigger>
+                                    <DialogContent aria-describedby={undefined}>
+                                        <DialogHeader>
+                                            <DialogTitle>
+                                                {__('Are you sure you want to delete the product :name?', {
+                                                    name: product.code,
+                                                })}
+                                            </DialogTitle>
+                                        </DialogHeader>
+
+                                        <DialogFooter>
+                                            <DialogClose asChild>
+                                                <Button variant="outline">{__('Cancel')}</Button>
+                                            </DialogClose>
+                                            <Link
+                                                href={route('products.destroy', product.id)}
+                                                method="delete"
+                                                as="Button"
+                                                className={buttonVariants({ variant: 'destructive' })}
+                                            >
+                                                {__('Delete')}
+                                            </Link>
+                                        </DialogFooter>
+                                    </DialogContent>
+                                </Dialog>
+                            )}
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                );
+            },
+        });
+    }
 
     const handleImport = () => {
         post(route('products.import'), {
@@ -92,77 +207,8 @@ export default function Index({ auth, products, failures }) {
                         </Link>
                     </div>
                 )}
-                <Table>
-                    {!products.length && <TableCaption>{__('No Content')}</TableCaption>}
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead>{__('Code')}</TableHead>
-                            <TableHead>{__('Description')}</TableHead>
-                            <TableHead>{__('Group')}</TableHead>
-                            <TableHead>{__('Unit')}</TableHead>
-                            <TableHead>{__('Origin')}</TableHead>
-                            <TableHead>{__('Currency')}</TableHead>
-                            <TableHead>{__('Price')}</TableHead>
-                            <TableHead>{__('Batch')}</TableHead>
-                            <TableHead>{__('Enabled')}</TableHead>
-                            {(canEdit || canDelete) && <TableHead className="w-56">{__('Options')}</TableHead>}
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {products.map((prdct) => (
-                            <TableRow key={prdct.id}>
-                                <TableCell className="font-medium">{prdct.code}</TableCell>
-                                <TableCell>{prdct.description}</TableCell>
-                                <TableCell>{prdct.group ? prdct.group.name : '-'}</TableCell>
-                                <TableCell>{prdct.unit || '-'}</TableCell>
-                                <TableCell>{prdct.origin || '-'}</TableCell>
-                                <TableCell>{prdct.currency || '-'}</TableCell>
-                                <TableCell>{prdct.price || '-'}</TableCell>
-                                <TableCell>{prdct.batch ? __('Sí') : __('No')}</TableCell>
-                                <TableCell>{prdct.enabled ? __('Sí') : __('No')}</TableCell>
-                                {(canEdit || canDelete) && (
-                                    <TableCell>
-                                        {canEdit && (
-                                            <Link href={route('products.edit', prdct.id)}>
-                                                <Button className="mr-2">{__('Edit')}</Button>
-                                            </Link>
-                                        )}
-                                        {canDelete && (
-                                            <Dialog>
-                                                <DialogTrigger asChild>
-                                                    <Button variant="destructive">{__('Delete')}</Button>
-                                                </DialogTrigger>
-                                                <DialogContent>
-                                                    <DialogHeader>
-                                                        <DialogTitle>
-                                                            {__('Are you sure you want to delete the product :name?', {
-                                                                name: prdct.description,
-                                                            })}
-                                                        </DialogTitle>
-                                                    </DialogHeader>
 
-                                                    <DialogFooter>
-                                                        <DialogClose asChild>
-                                                            <Button variant="outline">{__('Cancel')}</Button>
-                                                        </DialogClose>
-                                                        <Link
-                                                            href={route('products.destroy', prdct.id)}
-                                                            method="delete"
-                                                            as="Button"
-                                                            className={buttonVariants({ variant: 'destructive' })}
-                                                        >
-                                                            {__('Delete')}
-                                                        </Link>
-                                                    </DialogFooter>
-                                                </DialogContent>
-                                            </Dialog>
-                                        )}
-                                    </TableCell>
-                                )}
-                            </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
+                <DataTable data={products} columns={columns} filterBy="description" />
             </div>
         </AuthenticatedLayout>
     );

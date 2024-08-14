@@ -9,15 +9,14 @@ import {
     DialogHeader,
     DialogTitle,
     DialogTrigger,
-    Table,
-    TableBody,
-    TableCaption,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
 } from '@/Components/ui';
 import { Link } from '@inertiajs/react';
+import { DataTable } from '@/Components';
+import { ArrowUpDown, MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
 
 export default function ShowCompanyUsers({
     users = [],
@@ -27,6 +26,93 @@ export default function ShowCompanyUsers({
     className = '',
 }) {
     const { __ } = useTraslations();
+
+    const columns = [
+        {
+            accessorKey: 'rut',
+            header: 'RUT',
+        },
+        {
+            accessorKey: 'name',
+            header: ({ column }) => (
+                <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
+                    {__('Name')}
+                    <ArrowUpDown className="ml-2 h-4 w-4" />
+                </Button>
+            ),
+        },
+        {
+            accessorKey: 'email',
+            header: ({ column }) => (
+                <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
+                    {__('Email')}
+                    <ArrowUpDown className="ml-2 h-4 w-4" />
+                </Button>
+            ),
+            cell: ({ row }) => <div className="lowercase">{row.getValue('email')}</div>,
+        },
+    ];
+
+    if (canEdit || canDelete) {
+        columns.push({
+            id: 'actions',
+            enableHiding: false,
+            cell: ({ row }) => {
+                const user = row.original;
+
+                return (
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" className="h-8 w-8 p-0">
+                                <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            {canEdit && (
+                                <Link href={route('users.edit', user.id)} className="w-full">
+                                    <DropdownMenuItem>
+                                        <Pencil className="mr-2 h-4 w-4" /> {__('Edit')}
+                                    </DropdownMenuItem>
+                                </Link>
+                            )}
+                            {canDelete && (
+                                <Dialog>
+                                    <DialogTrigger asChild>
+                                        <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-red-600">
+                                            <Trash2 className="mr-2 h-4 w-4" /> {__('Delete')}
+                                        </DropdownMenuItem>
+                                    </DialogTrigger>
+                                    <DialogContent aria-describedby={undefined}>
+                                        <DialogHeader>
+                                            <DialogTitle>
+                                                {__('Are you sure you want to delete the user :name?', {
+                                                    name: user.rut,
+                                                })}
+                                            </DialogTitle>
+                                        </DialogHeader>
+
+                                        <DialogFooter>
+                                            <DialogClose asChild>
+                                                <Button variant="outline">{__('Cancel')}</Button>
+                                            </DialogClose>
+                                            <Link
+                                                href={route('users.destroy', user.id)}
+                                                method="delete"
+                                                as="Button"
+                                                className={buttonVariants({ variant: 'destructive' })}
+                                            >
+                                                {__('Delete')}
+                                            </Link>
+                                        </DialogFooter>
+                                    </DialogContent>
+                                </Dialog>
+                            )}
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                );
+            },
+        });
+    }
 
     return (
         <section className={className}>
@@ -42,65 +128,7 @@ export default function ShowCompanyUsers({
                 )}
             </header>
 
-            <Table className="mt-6">
-                {!users.length && <TableCaption>{__('No Content')}</TableCaption>}
-                <TableHeader>
-                    <TableRow>
-                        <TableHead className="w-28">#</TableHead>
-                        <TableHead>{__('RUT')}</TableHead>
-                        <TableHead>{__('Name')}</TableHead>
-                        {(canEdit || canDelete) && <TableHead className="w-56">{__('Options')}</TableHead>}
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    {users.map((user) => (
-                        <TableRow key={user.id}>
-                            <TableCell className="font-medium">{user.id}</TableCell>
-                            <TableCell>{user.rut}</TableCell>
-                            <TableCell>{user.name}</TableCell>
-                            {(canEdit || canDelete) && (
-                                <TableCell>
-                                    {canEdit && (
-                                        <Link href={route('users.edit', user.id)}>
-                                            <Button className="mr-2">{__('Edit')}</Button>
-                                        </Link>
-                                    )}
-                                    {canDelete && (
-                                        <Dialog>
-                                            <DialogTrigger asChild>
-                                                <Button variant="destructive">{__('Delete')}</Button>
-                                            </DialogTrigger>
-                                            <DialogContent>
-                                                <DialogHeader>
-                                                    <DialogTitle>
-                                                        {__('Are you sure you want to delete the user :name?', {
-                                                            name: user.rut,
-                                                        })}
-                                                    </DialogTitle>
-                                                </DialogHeader>
-
-                                                <DialogFooter>
-                                                    <DialogClose asChild>
-                                                        <Button variant="outline">{__('Cancel')}</Button>
-                                                    </DialogClose>
-                                                    <Link
-                                                        href={route('users.destroy', user.id)}
-                                                        method="delete"
-                                                        as="Button"
-                                                        className={buttonVariants({ variant: 'destructive' })}
-                                                    >
-                                                        {__('Delete')}
-                                                    </Link>
-                                                </DialogFooter>
-                                            </DialogContent>
-                                        </Dialog>
-                                    )}
-                                </TableCell>
-                            )}
-                        </TableRow>
-                    ))}
-                </TableBody>
-            </Table>
+            <DataTable data={users} columns={columns} filterBy="name" />
         </section>
     );
 }
