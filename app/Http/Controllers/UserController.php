@@ -27,10 +27,8 @@ class UserController extends Controller
      */
     public function create(): Response
     {
-        $roles = Role::all()->pluck('name');
-
         return Inertia::render('Company/Users/Create', [
-            'roles' => $roles,
+            'roles' => Role::pluck('name'),
         ]);
     }
 
@@ -75,11 +73,9 @@ class UserController extends Controller
 
         $user->role = $user->getRoleNames()[0];
 
-        $roles = Role::all()->pluck('name');
-
         return Inertia::render('Company/Users/Edit', [
             'user' => $user,
-            'roles' => $roles,
+            'roles' => Role::pluck('name'),
         ]);
     }
 

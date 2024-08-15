@@ -26,10 +26,8 @@ class ProductController extends Controller
      */
     public function index(Request $request): Response
     {
-        $products = $request->user()->company->products;
-
         return Inertia::render('Company/Products/Index', [
-            'products' => $products->load('group'),
+            'products' => $request->user()->company->products()->with('group')->get(),
             'failures' => session('failures', []),
         ]);
     }
@@ -41,7 +39,7 @@ class ProductController extends Controller
     {
         $rows = [];
 
-        $request->user()->company->products->load('group')->each(function ($product) use (&$rows) {
+        $request->user()->company->products()->with('group')->get()->each(function ($product) use (&$rows) {
             $rows[] = [
                 $product['code'],
                 $product['description'],
@@ -73,10 +71,8 @@ class ProductController extends Controller
      */
     public function create(Request $request): Response
     {
-        $groups = $request->user()->company->groups;
-
         return Inertia::render('Company/Products/Create', [
-            'groups' => $groups,
+            'groups' => $request->user()->company->groups,
         ]);
     }
 
@@ -121,27 +117,43 @@ class ProductController extends Controller
             'excel' => 'required|file|mimes:xlsx',
         ]);
 
+        $company_id = $request->user()->company_id;
+        $groups = $request->user()->company->groups()->pluck('id', 'name')->toArray();
+        $trad = [
+            'code' => __('Code'),
+            'description' => __('Description'),
+            'unit' => __('Unit'),
+            'origin' => __('Origin'),
+            'currency' => __('Currency'),
+            'price' => __('Price'),
+            'batch' => __('Batch'),
+            'enabled' => __('Enabled'),
+            'group' => __('Group'),
+            'yes' => __('Yes'),
+        ];
         $failures = [];
 
         $rows = SimpleExcelReader::create($request->excel, 'xlsx')->getRows();
-        $rows->each(function (array $row, int $key) use ($request, &$failures) {
-            $group_id = null;
-            if (!empty($row[__('Group')])) {
-                $group_id = $request->user()->company->groups->where('name', $row[__('Group')])->value('id');
-            }
-
+        $rows->each(function (array $row, int $key) use ($company_id, $groups, $trad, &$failures) {
             try {
                 Product::create([
-                    'code' => $row[__('Code')] ?? null,
-                    'description' => $row[__('Description')] ?? null,
-                    'unit' => $row[__('Unit')] ?? null,
-                    'origin' => $row[__('Origin')] ?? null,
-                    'currency' => $row[__('Currency')] ?? null,
-                    'price' => $row[__('Price')] ?? null,
-                    'batch' => !empty($row[__('Batch')]) && $row[__('Batch')] == __('Yes')[0],
-                    'enabled' => !empty($row[__('Enabled')]) && $row[__('Enabled')] == __('Yes')[0],
-                    'group_id' => $group_id,
-                    'company_id' => $request->user()->company_id,
+                    'code' => empty($row[$trad['code']])
+                        ? null : $row[$trad['code']],
+                    'description' => empty($row[$trad['description']])
+                        ? null : $row[$trad['description']],
+                    'unit' => empty($row[$trad['unit']])
+                        ? null : $row[$trad['unit']],
+                    'origin' => empty($row[$trad['origin']])
+                        ? null : $row[$trad['origin']],
+                    'currency' => empty($row[$trad['currency']])
+                        ? null : $row[$trad['currency']],
+                    'price' => empty($row[$trad['price']])
+                        ? null : $row[$trad['price']],
+                    'batch' => !empty($row[$trad['batch']]) && $row[$trad['batch']] == $trad['yes'][0],
+                    'enabled' => !empty($row[$trad['enabled']]) && $row[$trad['enabled']] == $trad['yes'][0],
+                    'group_id' => empty($groups[$row[$trad['group']]])
+                        ? null : $groups[$row[$trad['group']]],
+                    'company_id' => $company_id,
                 ]);
             } catch (\Throwable $th) {
                 $failures[] = $key + 2;
@@ -158,11 +170,9 @@ class ProductController extends Controller
     {
         if ($request->user()->company_id != $product->company_id) abort(403);
 
-        $groups = $request->user()->company->groups;
-
         return Inertia::render('Company/Products/Edit', [
             'product' => $product,
-            'groups' => $groups,
+            'groups' => $request->user()->company->groups,
         ]);
     }
 

@@ -56,10 +56,8 @@ class CompanyController extends Controller
     {
         if (!$request->user()->company_id) abort(404);
 
-        $company = Company::findOrFail($request->user()->company->id);
-
         return Inertia::render('Company/Show', [
-            'company' => $company->load('users'),
+            'company' => Company::with('users')->findOrFail($request->user()->company->id),
         ]);
     }
 
@@ -70,10 +68,8 @@ class CompanyController extends Controller
     {
         if (!$request->user()->company_id) abort(404);
 
-        $company = Company::findOrFail($request->user()->company->id);
-
         return Inertia::render('Company/Edit', [
-            'company' => $company,
+            'company' => Company::findOrFail($request->user()->company->id),
         ]);
     }
 
@@ -109,9 +105,7 @@ class CompanyController extends Controller
     {
         if (!$request->user()->company_id) abort(404);
 
-        $company = Company::findOrFail($request->user()->company->id);
-
-        $company->delete();
+        Company::findOrFail($request->user()->company->id)->delete();
 
         return redirect(route('dashboard'));
     }

@@ -25,11 +25,9 @@ class AisleController extends Controller
      */
     public function create(Request $request): Response
     {
-        $groups = $request->user()->company->groups;
-
         return Inertia::render('Company/Warehouses/Aisles/Create', [
             'warehouse_id' => $request->warehouse_id,
-            'groups' => $groups,
+            'groups' => $request->user()->company->groups,
         ]);
     }
 
@@ -86,11 +84,9 @@ class AisleController extends Controller
     {
         if ($request->user()->company_id != $aisle->warehouse->company_id) abort(403);
 
-        $groups = $request->user()->company->groups;
-
         return Inertia::render('Company/Warehouses/Aisles/Edit', [
             'aisle' => $aisle->load('locations'),
-            'groups' => $groups,
+            'groups' => $request->user()->company->groups,
         ]);
     }
 

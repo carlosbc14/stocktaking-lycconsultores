@@ -36,10 +36,8 @@ class GroupController extends Controller
      */
     public function index(Request $request): Response
     {
-        $groups = $request->user()->company->groups;
-
         return Inertia::render('Company/Groups/Index', [
-            'groups' => $groups->load('parentGroup'),
+            'groups' => $request->user()->company->groups()->with('parentGroup')->get(),
         ]);
     }
 
@@ -48,10 +46,8 @@ class GroupController extends Controller
      */
     public function create(Request $request): Response
     {
-        $groups = $request->user()->company->groups;
-
         return Inertia::render('Company/Groups/Create', [
-            'groups' => $groups,
+            'groups' => $request->user()->company->groups,
         ]);
     }
 
@@ -87,12 +83,9 @@ class GroupController extends Controller
     {
         if ($request->user()->company_id != $group->company_id) abort(403);
 
-        $groups = $request->user()->company->groups;
-        $all_child_groups = $this->getAllGroupIds($group);
-
         return Inertia::render('Company/Groups/Edit', [
             'group' => $group,
-            'groups' => $groups->whereNotIn('id', $all_child_groups)->values(),
+            'groups' => $request->user()->company->groups()->whereNotIn('id', $this->getAllGroupIds($group))->get(),
         ]);
     }
 

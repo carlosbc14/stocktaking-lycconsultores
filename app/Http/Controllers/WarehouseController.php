@@ -24,10 +24,8 @@ class WarehouseController extends Controller
      */
     public function index(Request $request): Response
     {
-        $warehouses = $request->user()->company->warehouses;
-
         return Inertia::render('Company/Warehouses/Index', [
-            'warehouses' => $warehouses,
+            'warehouses' => $request->user()->company->warehouses,
         ]);
     }
 
