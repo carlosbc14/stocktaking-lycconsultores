@@ -6,7 +6,22 @@ import {
     getSortedRowModel,
     useReactTable,
 } from '@tanstack/react-table';
-import { Button, Input, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui';
+import {
+    Button,
+    Input,
+    Label,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from './ui';
 import { useTraslations } from '@/Contexts/TranslationsContext';
 import { useState } from 'react';
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
@@ -16,12 +31,17 @@ export function DataTable({ columns, data, filterBy }) {
 
     const [sorting, setSorting] = useState([]);
     const [columnFilters, setColumnFilters] = useState([]);
+    const [pagination, setPagination] = useState({
+        pageIndex: 0,
+        pageSize: 10,
+    });
 
     const table = useReactTable({
         data,
         columns,
         onSortingChange: setSorting,
         onColumnFiltersChange: setColumnFilters,
+        onPaginationChange: setPagination,
         getCoreRowModel: getCoreRowModel(),
         getPaginationRowModel: getPaginationRowModel(),
         getSortedRowModel: getSortedRowModel(),
@@ -29,19 +49,40 @@ export function DataTable({ columns, data, filterBy }) {
         state: {
             sorting,
             columnFilters,
+            pagination,
         },
     });
 
     return (
         <div className="w-full">
             {filterBy && (
-                <div className="flex items-center mt-4">
+                <div className="flex items-center justify-between mt-4">
                     <Input
                         placeholder={__('Filter by :name', { name: __(filterBy).toUpperCase() })}
                         value={table.getColumn(filterBy)?.getFilterValue() ?? ''}
                         onChange={(event) => table.getColumn(filterBy)?.setFilterValue(event.target.value)}
                         className="max-w-sm"
                     />
+
+                    <div className="flex items-center space-x-2">
+                        <Label htmlFor="page-size">{__('Show')}</Label>
+
+                        <Select
+                            id="page-size"
+                            onValueChange={(v) => table.setPageSize(Number(v))}
+                            defaultValue={table.getState().pagination.pageSize.toString()}
+                        >
+                            <SelectTrigger className="mt-1">
+                                <SelectValue placeholder="" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="10">10</SelectItem>
+                                <SelectItem value="25">25</SelectItem>
+                                <SelectItem value="50">50</SelectItem>
+                                <SelectItem value="100">100</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
                 </div>
             )}
 
@@ -84,37 +125,65 @@ export function DataTable({ columns, data, filterBy }) {
                 </Table>
             </div>
 
-            <div className="flex items-center justify-end space-x-2 py-4">
-                <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => table.setPageIndex(0)}
-                    disabled={!table.getCanPreviousPage()}
-                >
-                    <ChevronsLeft className="h-4 w-4" />
-                </Button>
+            <div className="flex justify-between py-4">
+                <div className="flex items-center space-x-2">
+                    <Label htmlFor="page">{__('Page')}</Label>
 
-                <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => table.previousPage()}
-                    disabled={!table.getCanPreviousPage()}
-                >
-                    <ChevronLeft className="h-4 w-4" />
-                </Button>
+                    <Input
+                        id="page"
+                        className="w-auto"
+                        type="number"
+                        min="1"
+                        max={table.getPageCount()}
+                        value={table.getState().pagination.pageIndex + 1}
+                        onChange={(e) => {
+                            const page = e.target.value ? Number(e.target.value) - 1 : 0;
+                            table.setPageIndex(page);
+                        }}
+                    />
 
-                <Button variant="outline" size="sm" onClick={() => table.nextPage()} disabled={!table.getCanNextPage()}>
-                    <ChevronRight className="h-4 w-4" />
-                </Button>
+                    <span>{__('of')}</span>
 
-                <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-                    disabled={!table.getCanNextPage()}
-                >
-                    <ChevronsRight className="h-4 w-4" />
-                </Button>
+                    <span>{table.getPageCount().toLocaleString()}</span>
+                </div>
+
+                <div className="flex items-center space-x-2">
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => table.firstPage()}
+                        disabled={!table.getCanPreviousPage()}
+                    >
+                        <ChevronsLeft className="h-4 w-4" />
+                    </Button>
+
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => table.previousPage()}
+                        disabled={!table.getCanPreviousPage()}
+                    >
+                        <ChevronLeft className="h-4 w-4" />
+                    </Button>
+
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => table.nextPage()}
+                        disabled={!table.getCanNextPage()}
+                    >
+                        <ChevronRight className="h-4 w-4" />
+                    </Button>
+
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => table.lastPage()}
+                        disabled={!table.getCanNextPage()}
+                    >
+                        <ChevronsRight className="h-4 w-4" />
+                    </Button>
+                </div>
             </div>
         </div>
     );
