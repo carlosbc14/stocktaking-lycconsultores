@@ -121,6 +121,7 @@ export default function ShowWarehouseAisles({
                                                 method="delete"
                                                 as="Button"
                                                 className={buttonVariants({ variant: 'destructive' })}
+                                                onClick={(e) => (e.target.disabled = true)}
                                             >
                                                 {__('Delete')}
                                             </Link>

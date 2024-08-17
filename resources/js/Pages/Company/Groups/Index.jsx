@@ -95,6 +95,7 @@ export default function Index({ auth, groups }) {
                                                 method="delete"
                                                 as="Button"
                                                 className={buttonVariants({ variant: 'destructive' })}
+                                                onClick={(e) => (e.target.disabled = true)}
                                             >
                                                 {__('Delete')}
                                             </Link>
