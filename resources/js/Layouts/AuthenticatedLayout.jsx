@@ -1,4 +1,4 @@
-import { Building2, ChevronDown, Group, Home, ListMinus, LogOut, Syringe, User, Warehouse } from 'lucide-react';
+import { Building2, ChevronDown, Group, Home, ListMinus, LogOut, Package, User, Warehouse } from 'lucide-react';
 import {
     Button,
     DropdownMenu,
@@ -56,7 +56,7 @@ export default function Authenticated({ user, title, children }) {
             links.push({
                 route: 'products.index',
                 name: 'products',
-                icon: Syringe,
+                icon: Package,
             });
         }
     }
