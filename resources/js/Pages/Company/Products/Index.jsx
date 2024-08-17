@@ -73,7 +73,7 @@ export default function Index({ auth, products, failures }) {
         {
             accessorKey: 'price',
             header: <div className="uppercase">{__('Price')}</div>,
-            cell: ({ row }) => row.original.price ?? '-',
+            cell: ({ row }) => row.original.price?.toLocaleString() ?? '-',
         },
         {
             accessorKey: 'batch',
