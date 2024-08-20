@@ -19,46 +19,45 @@ import { Head, Link } from '@inertiajs/react';
 export default function Authenticated({ user, title, children }) {
     const { __ } = useTraslations();
 
-    const links = [
+    const availableLinks = [
         {
             route: 'dashboard',
             name: 'Dashboard',
             icon: Home,
+            requiredPermission: null,
+        },
+        {
+            route: 'company.show',
+            name: 'Company',
+            icon: Building2,
+            requiredPermission: 'read company',
+        },
+        {
+            route: 'groups.index',
+            name: 'Groups',
+            icon: Group,
+            requiredPermission: 'read groups',
+        },
+        {
+            route: 'warehouses.index',
+            name: 'Warehouses',
+            icon: Warehouse,
+            requiredPermission: 'read warehouses',
+        },
+        {
+            route: 'products.index',
+            name: 'Products',
+            icon: Package,
+            requiredPermission: 'read products',
         },
     ];
 
-    if (user.company_id) {
-        if (user.permissions.some((per) => per.name === 'read company')) {
-            links.push({
-                route: 'company.show',
-                name: 'Company',
-                icon: Building2,
-            });
-        }
+    let links = availableLinks.filter(
+        (link) => !link.requiredPermission || user.permissions.some((per) => per.name === link.requiredPermission)
+    );
 
-        if (user.permissions.some((per) => per.name === 'read groups')) {
-            links.push({
-                route: 'groups.index',
-                name: 'groups',
-                icon: Group,
-            });
-        }
-
-        if (user.permissions.some((per) => per.name === 'read warehouses')) {
-            links.push({
-                route: 'warehouses.index',
-                name: 'Warehouses',
-                icon: Warehouse,
-            });
-        }
-
-        if (user.permissions.some((per) => per.name === 'read products')) {
-            links.push({
-                route: 'products.index',
-                name: 'products',
-                icon: Package,
-            });
-        }
+    if (user.company_id && links.length > 1) {
+        links = [links[0], { name: 'Administration' }, ...links.slice(1)];
     }
 
     return (

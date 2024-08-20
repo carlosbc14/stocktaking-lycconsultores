@@ -19,20 +19,28 @@ export function SideBar({ links, className = '' }) {
             </div>
             <div className="py-6 px-4 overflow-y-auto">
                 <ul className="space-y-2">
-                    {links.map((props, index) => (
-                        <li key={index}>
-                            <Link
-                                href={route(props.route)}
-                                className={cn(
-                                    buttonVariants({ variant: route().current(props.route) ? 'default' : 'secondary' }),
-                                    'w-full justify-start'
-                                )}
-                            >
-                                <props.icon className="mr-2 h-4 w-4" />
+                    {links.map((props, index) =>
+                        props.route ? (
+                            <li key={index}>
+                                <Link
+                                    href={route(props.route)}
+                                    className={cn(
+                                        buttonVariants({
+                                            variant: route().current(props.route) ? 'default' : 'secondary',
+                                        }),
+                                        'w-full justify-start'
+                                    )}
+                                >
+                                    <props.icon className="mr-2 h-4 w-4" />
+                                    {__(props.name)}
+                                </Link>
+                            </li>
+                        ) : (
+                            <li key={index} className="font-bold uppercase px-4 pb-2 pt-6">
                                 {__(props.name)}
-                            </Link>
-                        </li>
-                    ))}
+                            </li>
+                        )
+                    )}
                 </ul>
             </div>
         </nav>
