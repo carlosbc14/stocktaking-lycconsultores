@@ -49,6 +49,7 @@ class ProductController extends Controller
                 $product['currency'] ?? '',
                 $product['price'] ?? '',
                 $product['batch'] ? __('Yes')[0] : __('No')[0],
+                $product['expiry_date'] ? __('Yes')[0] : __('No')[0],
                 $product['enabled'] ? __('Yes')[0] : __('No')[0],
             ];
         });
@@ -62,6 +63,7 @@ class ProductController extends Controller
             __('Currency'),
             __('Price'),
             __('Batch'),
+            __('Expiry Date'),
             __('Enabled'),
         ])->addRows($rows);
     }
@@ -91,6 +93,7 @@ class ProductController extends Controller
             'products.*.currency' => 'nullable|string|max:255',
             'products.*.price' => 'nullable|numeric|min:0',
             'products.*.batch' => 'boolean',
+            'products.*.expiry_date' => 'boolean',
             'products.*.enabled' => 'boolean',
             'products.*.group_id' => ['nullable', Rule::exists('groups', 'id')->where(function ($query) use ($request) {
                 return $query->where('company_id', $request->user()->company_id);
@@ -127,6 +130,7 @@ class ProductController extends Controller
             'currency' => __('Currency'),
             'price' => __('Price'),
             'batch' => __('Batch'),
+            'expiry_date' => __('Expiry Date'),
             'enabled' => __('Enabled'),
             'group' => __('Group'),
             'yes' => __('Yes'),
@@ -150,6 +154,7 @@ class ProductController extends Controller
                     'price' => empty($row[$trad['price']])
                         ? null : $row[$trad['price']],
                     'batch' => !empty($row[$trad['batch']]) && $row[$trad['batch']] == $trad['yes'][0],
+                    'expiry_date' => !empty($row[$trad['expiry_date']]) && $row[$trad['expiry_date']] == $trad['yes'][0],
                     'enabled' => !empty($row[$trad['enabled']]) && $row[$trad['enabled']] == $trad['yes'][0],
                     'group_id' => empty($groups[$row[$trad['group']]])
                         ? null : $groups[$row[$trad['group']]],
@@ -193,6 +198,7 @@ class ProductController extends Controller
             'currency' => 'nullable|string|max:255',
             'price' => 'nullable|numeric|min:0',
             'batch' => 'boolean',
+            'expiry_date' => 'boolean',
             'enabled' => 'boolean',
             'group_id' => ['nullable', Rule::exists('groups', 'id')->where(function ($query) use ($product) {
                 return $query->where('company_id', $product->company_id);

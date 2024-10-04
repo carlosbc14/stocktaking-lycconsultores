@@ -19,7 +19,8 @@ return new class extends Migration
             $table->string('origin')->nullable();
             $table->string('currency')->nullable();
             $table->unsignedInteger('price')->nullable();
-            $table->boolean('batch')->default(true);
+            $table->boolean('batch')->default(false);
+            $table->boolean('expiry_date')->default(false);
             $table->boolean('enabled')->default(true);
             $table->foreignId('group_id')
                 ->nullable()

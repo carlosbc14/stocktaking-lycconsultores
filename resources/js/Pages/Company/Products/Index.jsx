@@ -81,9 +81,9 @@ export default function Index({ auth, products, failures }) {
             cell: ({ row }) => (row.original.batch ? __('Yes') : __('No')),
         },
         {
-            accessorKey: 'enabled',
-            header: <div className="uppercase">{__('Enabled')}</div>,
-            cell: ({ row }) => (row.original.enabled ? __('Yes') : __('No')),
+            accessorKey: 'expiry_date',
+            header: <div className="uppercase">{__('Expiry Date')}</div>,
+            cell: ({ row }) => (row.original.expiry_date ? __('Yes') : __('No')),
         },
     ];
 
