@@ -19,4 +19,11 @@ class Location extends Model
     {
         return $this->belongsTo(Aisle::class);
     }
+
+    public function products()
+    {
+        return $this->belongsToMany(Product::class, 'product_stocktaking')
+            ->withPivot('id', 'stocktaking_id', 'batch', 'expiry_date', 'quantity')
+            ->withTimestamps();
+    }
 }

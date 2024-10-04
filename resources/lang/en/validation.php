@@ -19,5 +19,6 @@ return [
         'products.*.origin'        => 'origin',
         'products.*.price'         => 'price',
         'products.*.unit'          => 'unit',
+        'warehouse_id'             => 'warehouse',
     ],
 ];

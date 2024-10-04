@@ -5,6 +5,7 @@ use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\GroupController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\StocktakingController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WarehouseController;
 use App\Http\Middleware\LocaleCookie;
@@ -54,6 +55,14 @@ Route::middleware(LocaleCookie::class)->group(function () {
         Route::get('/products/export', [ProductController::class, 'export'])->name('products.export');
         Route::post('/products/import', [ProductController::class, 'import'])->name('products.import');
         Route::resource('/aisles', AisleController::class)->only(['create', 'store', 'edit', 'update', 'destroy']);
+        Route::resource('/stocktakings', StocktakingController::class);
+        Route::get('/stocktakings/{stocktaking}/select-location', [StocktakingController::class, 'selectLocation'])->name('stocktakings.selectLocation');
+        Route::get('/stocktakings/{stocktaking}/run/{location}', [StocktakingController::class, 'run'])->name('stocktakings.run');
+        Route::post('/stocktakings/{stocktaking}/add-product', [StocktakingController::class, 'addProduct'])->name('stocktakings.addProduct');
+        Route::get('/stocktakings/{stocktaking}/show-location/{location}', [StocktakingController::class, 'showLocation'])->name('stocktakings.showLocation');
+        Route::post('/stocktakings/{stocktaking}/reset-location/{location}', [StocktakingController::class, 'resetLocation'])->name('stocktakings.resetLocation');
+        Route::post('stocktakings/{stocktaking}/finalize', [StocktakingController::class, 'finalize'])->name('stocktakings.finalize');
+        Route::get('/api/stocktakings/scan/{code}', [StocktakingController::class, 'scan'])->name('stocktakings.scan');
     });
 
 

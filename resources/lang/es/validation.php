@@ -283,6 +283,7 @@ return [
         'time'                     => 'hora',
         'title'                    => 'título',
         'type'                     => 'tipo',
+        'warehouse_id'             => 'almacén',
         'updated_at'               => 'actualizado el',
         'user'                     => 'usuario',
         'username'                 => 'usuario',

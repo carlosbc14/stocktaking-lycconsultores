@@ -36,12 +36,18 @@ return new class extends Migration
         Permission::create(['name' => 'edit products']);
         Permission::create(['name' => 'delete products']);
 
+        Permission::create(['name' => 'write stocktakings']);
+        Permission::create(['name' => 'read stocktakings']);
+        Permission::create(['name' => 'edit stocktakings']);
+        Permission::create(['name' => 'delete stocktakings']);
+
         Role::create(['name' => 'owner'])->givePermissionTo([
             'write company', 'read company', 'edit company', 'delete company',
             'write users', 'read users', 'edit users', 'delete users',
             'write warehouses', 'read warehouses', 'edit warehouses', 'delete warehouses',
             'write groups', 'read groups', 'edit groups', 'delete groups',
             'write products', 'read products', 'edit products', 'delete products',
+            'read stocktakings',
         ]);
 
         Role::create(['name' => 'admin'])->givePermissionTo([
@@ -50,13 +56,20 @@ return new class extends Migration
             'write warehouses', 'read warehouses', 'edit warehouses', 'delete warehouses',
             'write groups', 'read groups', 'edit groups', 'delete groups',
             'write products', 'read products', 'edit products', 'delete products',
+            'read stocktakings',
         ]);
 
-        Role::create(['name' => 'supervisor']);
+        Role::create(['name' => 'supervisor'])->givePermissionTo([
+            'read stocktakings',
+        ]);
 
-        Role::create(['name' => 'lead_operator']);
+        Role::create(['name' => 'lead_operator'])->givePermissionTo([
+            'write stocktakings', 'read stocktakings', 'edit stocktakings', 'delete stocktakings',
+        ]);
 
-        Role::create(['name' => 'operator']);
+        Role::create(['name' => 'operator'])->givePermissionTo([
+            'write stocktakings', 'read stocktakings', 'edit stocktakings',
+        ]);
     }
 
     /**

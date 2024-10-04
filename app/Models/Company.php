@@ -36,4 +36,9 @@ class Company extends Model
     {
         return $this->hasMany(Product::class);
     }
+
+    public function stocktakings()
+    {
+        return $this->hasMany(Stocktaking::class);
+    }
 }

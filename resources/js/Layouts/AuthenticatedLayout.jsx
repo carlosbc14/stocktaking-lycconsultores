@@ -1,4 +1,15 @@
-import { Building2, ChevronDown, Group, Home, ListMinus, LogOut, Package, User, Warehouse } from 'lucide-react';
+import {
+    Building2,
+    ChevronDown,
+    FileBox,
+    Group,
+    Home,
+    ListMinus,
+    LogOut,
+    Package,
+    User,
+    Warehouse,
+} from 'lucide-react';
 import {
     Button,
     DropdownMenu,
@@ -24,6 +35,12 @@ export default function Authenticated({ user, title, children }) {
             route: 'dashboard',
             name: 'Dashboard',
             icon: Home,
+            requiredPermission: null,
+        },
+        {
+            route: 'stocktakings.index',
+            name: 'Stocktakings',
+            icon: FileBox,
             requiredPermission: null,
         },
         {
@@ -56,8 +73,12 @@ export default function Authenticated({ user, title, children }) {
         (link) => !link.requiredPermission || user.permissions.some((per) => per.name === link.requiredPermission)
     );
 
-    if (user.company_id && links.length > 1) {
-        links = [links[0], { name: 'Administration' }, ...links.slice(1)];
+    if (user.company_id && links.length > 2) {
+        links = [links[0], links[1], { name: 'Administration' }, ...links.slice(2)];
+    }
+
+    if (!user.company_id) {
+        links = [links[0]];
     }
 
     return (
