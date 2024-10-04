@@ -26,7 +26,6 @@ export default function Create({ auth, groups }) {
         const groups_to_add = [...data.groups];
 
         groups_to_add[index][name] = value;
-        console.log(groups_to_add);
 
         setData('groups', groups_to_add);
     };
