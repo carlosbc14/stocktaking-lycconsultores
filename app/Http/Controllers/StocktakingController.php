@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
+use Spatie\SimpleExcel\SimpleExcelWriter;
 
 class StocktakingController extends Controller
 {
@@ -195,6 +196,51 @@ class StocktakingController extends Controller
         return Inertia::render('Company/Stocktakings/Show', [
             'stocktaking' => $stocktaking,
         ]);
+    }
+
+    /**
+     * Export the specified resource.
+     */
+    public function export(Request $request, Stocktaking $stocktaking): void
+    {
+        if ($request->user()->company_id != $stocktaking->company_id) abort(403);
+
+        $rows = [];
+
+        $formattedDate = str_replace('/', '-', $stocktaking->created_at->isoFormat('L'));
+
+        $stocktakingInfo = [
+            __('Warehouse') => $stocktaking->warehouse->name . ' (' . $stocktaking->warehouse->code . ')',
+            __('Date') => $formattedDate,
+            __('User') => $request->user()->name,
+        ];
+
+        foreach ($stocktakingInfo as $key => $value) $rows[] = [$key, $value];
+
+        $rows[] = [];
+        $rows[] = [
+            __('Code'),
+            __('Description'),
+            __('Group'),
+            __('Batch'),
+            __('Expiry Date'),
+            __('Quantity'),
+            __('Location'),
+        ];
+
+        $stocktaking->products()->get()->each(function ($product) use (&$rows) {
+            $rows[] = [
+                $product['code'],
+                $product['description'],
+                $product['group'] ? $product['group']['name'] : '',
+                $product['batch'] ? $product['pivot']['batch'] : '',
+                $product['expiry_date'] ? $product['pivot']['expiry_date'] : '',
+                $product['pivot']['quantity'],
+                $product['pivot']['location']['aisle']['code'] . '-' . $product['pivot']['location']['column'] . '-' . $product['pivot']['location']['row'],
+            ];
+        });
+
+        SimpleExcelWriter::streamDownload(__('Stocktaking') . ' ' . $formattedDate . '.xlsx')->noHeaderRow()->addRows($rows);
     }
 
     /**

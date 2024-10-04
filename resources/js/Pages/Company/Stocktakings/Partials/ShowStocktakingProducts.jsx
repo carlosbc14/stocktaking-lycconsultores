@@ -4,7 +4,13 @@ import { DataTable } from '@/Components';
 import { ArrowUpDown } from 'lucide-react';
 import { Link } from '@inertiajs/react';
 
-export default function ShowStocktakingProducts({ stocktakingId, products = [], canCreate = false, className = '' }) {
+export default function ShowStocktakingProducts({
+    stocktakingId,
+    products = [],
+    stocktakingFinished = false,
+    canCreate = false,
+    className = '',
+}) {
     const { locale, __ } = useTraslations();
 
     const columns = [
@@ -56,7 +62,15 @@ export default function ShowStocktakingProducts({ stocktakingId, products = [], 
             <header>
                 <h2 className="text-lg font-medium text-gray-900">{__('Stocktaking Products')}</h2>
 
-                {canCreate && (
+                {stocktakingFinished && (
+                    <div className="flex justify-end">
+                        <a href={route('stocktakings.export', stocktakingId)}>
+                            <Button>{__('Export :name', { name: __('stocktaking') })}</Button>
+                        </a>
+                    </div>
+                )}
+
+                {canCreate && !stocktakingFinished && (
                     <div className="flex justify-end">
                         <Link href={route('stocktakings.selectLocation', stocktakingId)}>
                             <Button>{__('Continue :name', { name: __('stocktaking') })}</Button>

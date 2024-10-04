@@ -26,6 +26,7 @@ export default function Show({ auth, stocktaking }) {
 
                 <div className="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
                     <ShowStocktakingProducts
+                        stocktakingFinished={stocktaking.finished_at}
                         canCreate={
                             auth.user.permissions.some((per) => per.name === 'write stocktakings') &&
                             !stocktaking.finished_at
