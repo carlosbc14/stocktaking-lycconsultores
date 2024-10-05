@@ -14,7 +14,13 @@ export default function Show({ auth, warehouse }) {
                 </div>
 
                 <div className="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
-                    <ShowWarehouseAisles aisles={warehouse.aisles} />
+                    <ShowWarehouseAisles
+                        canCreate={auth.user.permissions.some((per) => per.name === 'write warehouses')}
+                        canEdit={auth.user.permissions.some((per) => per.name === 'edit warehouses')}
+                        canDelete={auth.user.permissions.some((per) => per.name === 'delete warehouses')}
+                        warehouse_id={warehouse.id}
+                        aisles={warehouse.aisles}
+                    />
                 </div>
             </div>
         </AuthenticatedLayout>
