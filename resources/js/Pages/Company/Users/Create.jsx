@@ -12,7 +12,7 @@ import {
     useToast,
 } from '@/Components/ui';
 import { useForm } from '@inertiajs/react';
-import { InputError } from '@/Components';
+import { InputError, PasswordInput } from '@/Components';
 
 export default function Create({ auth, roles }) {
     const { __ } = useTraslations();
@@ -96,9 +96,8 @@ export default function Create({ auth, roles }) {
                         <div>
                             <Label htmlFor="password">{__('Password')}</Label>
 
-                            <Input
+                            <PasswordInput
                                 id="password"
-                                type="password"
                                 value={data.password}
                                 className="mt-1 block w-full"
                                 onChange={(e) => setData('password', e.target.value)}
