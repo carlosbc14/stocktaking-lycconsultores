@@ -51,6 +51,16 @@ export default function ShowCompanyUsers({
             ),
             cell: ({ row }) => <div className="lowercase">{row.getValue('email')}</div>,
         },
+        {
+            accessorKey: 'role.name',
+            header: ({ column }) => (
+                <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
+                    {__('Role')}
+                    <ArrowUpDown className="ml-2 h-4 w-4" />
+                </Button>
+            ),
+            cell: ({ row }) => <div className="uppercase">{__(row.original.role.name.replace('_', ' '))}</div>,
+        },
     ];
 
     if (canEdit || canDelete) {

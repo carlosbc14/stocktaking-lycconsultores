@@ -56,8 +56,16 @@ class CompanyController extends Controller
     {
         if (!$request->user()->company_id) abort(404);
 
+        $company = Company::with(['users'])->findOrFail($request->user()->company->id);
+
+        $company->users->map(function ($user) {
+            $user->role = $user->roles->first();
+            $user->makeHidden('roles');
+            return $user;
+        });
+
         return Inertia::render('Company/Show', [
-            'company' => Company::with('users')->findOrFail($request->user()->company->id),
+            'company' => $company,
         ]);
     }
 
