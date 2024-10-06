@@ -1,0 +1,66 @@
+name: Deployment Pipeline
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  avoid-reduncy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Cancel Previous Runs
+        uses: styfle/cancel-workflow-action@0.12.1
+        with:
+          access_token: ${{ github.token }}
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.2"
+
+      - name: Install PHP Dependencies
+        run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist --optimize-autoloader --no-dev
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install Node.js Dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Remove Unnecessary Folders
+        run: rm -rf node_modules tests
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: build
+          path: ./
+
+  deployment-app:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: build
+          path: ./
+
+      - name: Deployment in cPanel
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          server-dir: stocktaking/
