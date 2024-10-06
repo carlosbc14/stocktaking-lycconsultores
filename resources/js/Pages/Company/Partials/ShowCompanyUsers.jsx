@@ -70,6 +70,8 @@ export default function ShowCompanyUsers({
             cell: ({ row }) => {
                 const user = row.original;
 
+                if (!user.permissions.canEdit && !user.permissions.canDelete) return;
+
                 return (
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -78,14 +80,14 @@ export default function ShowCompanyUsers({
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                            {canEdit && (
+                            {canEdit && user.permissions.canEdit && (
                                 <Link href={route('users.edit', user.id)} className="w-full">
                                     <DropdownMenuItem>
                                         <Pencil className="mr-2 h-4 w-4" /> {__('Edit')}
                                     </DropdownMenuItem>
                                 </Link>
                             )}
-                            {canDelete && (
+                            {canDelete && user.permissions.canDelete && (
                                 <Dialog>
                                     <DialogTrigger asChild>
                                         <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-red-600">

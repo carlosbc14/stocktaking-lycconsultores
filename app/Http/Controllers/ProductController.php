@@ -13,19 +13,13 @@ use Spatie\SimpleExcel\SimpleExcelWriter;
 
 class ProductController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware(['permission:write products'])->only(['create', 'store']);
-        $this->middleware(['permission:read products'])->only(['index']);
-        $this->middleware(['permission:edit products'])->only(['edit', 'update']);
-        $this->middleware(['permission:delete products'])->only(['destroy']);
-    }
-
     /**
      * Display a listing of the resource.
      */
     public function index(Request $request): Response
     {
+        $this->authorize('viewAny', Product::class);
+
         return Inertia::render('Company/Products/Index', [
             'products' => $request->user()->company->products()->with('group')->get(),
             'failures' => session('failures', []),
@@ -37,6 +31,8 @@ class ProductController extends Controller
      */
     public function export(Request $request): void
     {
+        $this->authorize('viewAny', Product::class);
+
         $rows = [];
 
         $request->user()->company->products()->with('group')->get()->each(function ($product) use (&$rows) {
@@ -73,6 +69,8 @@ class ProductController extends Controller
      */
     public function create(Request $request): Response
     {
+        $this->authorize('create', Product::class);
+
         return Inertia::render('Company/Products/Create', [
             'groups' => $request->user()->company->groups,
         ]);
@@ -83,6 +81,8 @@ class ProductController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        $this->authorize('create', Product::class);
+
         $validated = $request->validate([
             'products.*.code' => ['required', 'string', 'max:255', Rule::unique('products')->where(function ($query) use ($request) {
                 return $query->where('company_id', $request->user()->company_id);
@@ -116,6 +116,8 @@ class ProductController extends Controller
      */
     public function import(Request $request): RedirectResponse
     {
+        $this->authorize('create', Product::class);
+
         $request->validate([
             'excel' => 'required|file|mimes:xlsx',
         ]);
@@ -173,7 +175,7 @@ class ProductController extends Controller
      */
     public function edit(Request $request, Product $product): Response
     {
-        if ($request->user()->company_id != $product->company_id) abort(403);
+        $this->authorize('update', $product);
 
         return Inertia::render('Company/Products/Edit', [
             'product' => $product,
@@ -186,7 +188,7 @@ class ProductController extends Controller
      */
     public function update(Request $request, Product $product): RedirectResponse
     {
-        if ($request->user()->company_id != $product->company_id) abort(403);
+        $this->authorize('update', $product);
 
         $validated = $request->validate([
             'code' => ['string', 'max:255', Rule::unique('products')->where(function ($query) use ($product) {
@@ -213,9 +215,9 @@ class ProductController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Request $request, Product $product): RedirectResponse
+    public function destroy(Product $product): RedirectResponse
     {
-        if ($request->user()->company_id != $product->company_id) abort(403);
+        $this->authorize('delete', $product);
 
         $product->delete();
 

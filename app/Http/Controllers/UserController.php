@@ -15,18 +15,13 @@ use Spatie\Permission\Models\Role;
 
 class UserController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware(['permission:write users'])->only(['create', 'store']);
-        $this->middleware(['permission:edit users'])->only(['edit', 'update']);
-        $this->middleware(['permission:delete users'])->only(['destroy']);
-    }
-
     /**
      * Show the form for creating a new resource.
      */
     public function create(): Response
     {
+        $this->authorize('create', User::class);
+
         return Inertia::render('Company/Users/Create', [
             'roles' => Role::pluck('name'),
         ]);
@@ -37,6 +32,8 @@ class UserController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        $this->authorize('create', User::class);
+
         $request->merge([
             'rut' => Rut::parse($request->rut)->quiet()->format(),
         ]);
@@ -67,9 +64,9 @@ class UserController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Request $request, User $user): Response
+    public function edit(User $user): Response
     {
-        if ($request->user()->company_id != $user->company_id) abort(403);
+        $this->authorize('update', $user);
 
         $user->role = $user->getRoleNames()[0];
 
@@ -84,7 +81,7 @@ class UserController extends Controller
      */
     public function update(Request $request, User $user): RedirectResponse
     {
-        if ($request->user()->company_id != $user->company_id) abort(403);
+        $this->authorize('update', $user);
 
         $request->merge([
             'rut' => Rut::parse($request->rut)->quiet()->format(),
@@ -113,9 +110,9 @@ class UserController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Request $request, User $user): RedirectResponse
+    public function destroy(User $user): RedirectResponse
     {
-        if ($request->user()->company_id != $user->company_id) abort(403);
+        $this->authorize('delete', $user);
 
         $user->delete();
 

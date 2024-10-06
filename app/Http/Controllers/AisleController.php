@@ -13,18 +13,15 @@ use Inertia\Response;
 
 class AisleController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware(['permission:write warehouses'])->only(['create', 'store']);
-        $this->middleware(['permission:edit warehouses'])->only(['edit', 'update']);
-        $this->middleware(['permission:delete warehouses'])->only(['destroy']);
-    }
-
     /**
      * Show the form for creating a new resource.
      */
     public function create(Request $request): Response
     {
+        $warehouse = Warehouse::findOrFail($request->warehouse_id);
+
+        $this->authorize('update', $warehouse);
+
         return Inertia::render('Company/Warehouses/Aisles/Create', [
             'warehouse_id' => $request->warehouse_id,
             'groups' => $request->user()->company->groups,
@@ -38,7 +35,7 @@ class AisleController extends Controller
     {
         $warehouse = Warehouse::findOrFail($request->warehouse_id);
 
-        if ($request->user()->company_id != $warehouse->company_id) abort(403);
+        $this->authorize('update', $warehouse);
 
         $validated = $request->validate([
             'aisles.*.code' => ['required', 'distinct', 'regex:/^[A-Za-z0-9]{2}$/', Rule::unique('aisles')->where(function ($query) use ($request) {
@@ -82,7 +79,7 @@ class AisleController extends Controller
      */
     public function edit(Request $request, Aisle $aisle): Response
     {
-        if ($request->user()->company_id != $aisle->warehouse->company_id) abort(403);
+        $this->authorize('update', $aisle->warehouse);
 
         return Inertia::render('Company/Warehouses/Aisles/Edit', [
             'aisle' => $aisle->load('locations'),
@@ -95,7 +92,7 @@ class AisleController extends Controller
      */
     public function update(Request $request, Aisle $aisle): RedirectResponse
     {
-        if ($request->user()->company_id != $aisle->warehouse->company_id) abort(403);
+        $this->authorize('update', $aisle->warehouse);
 
         $validated = $request->validate([
             'code' => ['regex:/^[A-Za-z0-9]{2}$/', Rule::unique('aisles')->where(function ($query) use ($aisle) {
@@ -175,9 +172,9 @@ class AisleController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Request $request, Aisle $aisle): RedirectResponse
+    public function destroy(Aisle $aisle): RedirectResponse
     {
-        if ($request->user()->company_id != $aisle->warehouse->company_id) abort(403);
+        $this->authorize('delete', $aisle->warehouse);
 
         $warehouse_id = $aisle->warehouse_id;
 

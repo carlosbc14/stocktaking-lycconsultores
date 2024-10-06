@@ -15,19 +15,13 @@ use Spatie\SimpleExcel\SimpleExcelWriter;
 
 class StocktakingController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware(['permission:write stocktakings'])->only(['create', 'store', 'selectLocation', 'run', 'scan', 'addProduct', 'showLocation', 'resetLocation', 'finalize']);
-        $this->middleware(['permission:read stocktakings'])->only(['index', 'show']);
-        $this->middleware(['permission:edit stocktakings'])->only(['edit', 'update']);
-        $this->middleware(['permission:delete stocktakings'])->only(['destroy']);
-    }
-
     /**
      * Display a listing of the resource.
      */
     public function index(Request $request): Response
     {
+        $this->authorize('viewAny', Stocktaking::class);
+
         return Inertia::render('Company/Stocktakings/Index', [
             'stocktakings' => $request->user()->company->stocktakings()->with(['user', 'warehouse'])->get(),
         ]);
@@ -38,6 +32,8 @@ class StocktakingController extends Controller
      */
     public function create(Request $request): Response
     {
+        $this->authorize('create', Stocktaking::class);
+
         return Inertia::render('Company/Stocktakings/Create', [
             'warehouses' => $request->user()->company->warehouses,
         ]);
@@ -48,6 +44,8 @@ class StocktakingController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        $this->authorize('create', Stocktaking::class);
+
         $request->validate([
             'warehouse_id' => ['required', Rule::exists('warehouses', 'id')->where(function ($query) use ($request) {
                 return $query->where('company_id', $request->user()->company_id);
@@ -63,9 +61,9 @@ class StocktakingController extends Controller
         return redirect(route('stocktakings.selectLocation', $stocktaking->id));
     }
 
-    public function selectLocation(Request $request, Stocktaking $stocktaking): Response
+    public function selectLocation(Stocktaking $stocktaking): Response
     {
-        if ($request->user()->company_id != $stocktaking->company_id) abort(403);
+        $this->authorize('update', $stocktaking);
 
         $stocktaking->load(['warehouse.aisles.locations.products' => function ($query) use ($stocktaking) {
             $query->where('stocktaking_id', $stocktaking->id);
@@ -76,17 +74,13 @@ class StocktakingController extends Controller
         ]);
     }
 
-    public function run(Request $request, Stocktaking $stocktaking, Location $location): Response
+    public function run(Stocktaking $stocktaking, Location $location): Response
     {
-        if ($request->user()->company_id != $stocktaking->company_id) abort(403);
-
-        $location->load('aisle');
-
-        if ($location->aisle->warehouse_id != $stocktaking->warehouse_id) abort(403);
+        $this->authorize('perform', [$stocktaking, $location]);
 
         return Inertia::render('Company/Stocktakings/Run', [
             'stocktaking' => $stocktaking,
-            'location' => $location,
+            'location' => $location->load('aisle'),
         ]);
     }
 
@@ -105,7 +99,9 @@ class StocktakingController extends Controller
 
     public function addProduct(Request $request, Stocktaking $stocktaking): RedirectResponse
     {
-        if ($request->user()->company_id != $stocktaking->company_id) abort(403);
+        $location = Location::findOrFail($request->location_id);
+
+        $this->authorize('perform', [$stocktaking, $location]);
 
         $validated = $request->validate([
             'products' => 'required|array',
@@ -114,11 +110,7 @@ class StocktakingController extends Controller
             })],
             'products.*.batch' => 'nullable|string|max:255',
             'products.*.quantity' => 'required|numeric|min:1',
-            'location_id' => 'required|exists:locations,id',
         ]);
-
-        $location = Location::find($validated['location_id']);
-        if ($request->user()->company_id != $location->aisle->warehouse->company_id) abort(403);
 
         foreach ($validated['products'] as $product) {
             $stocktaking->products()->attach($product['id'], [
@@ -131,15 +123,11 @@ class StocktakingController extends Controller
         return redirect(route('stocktakings.selectLocation', $stocktaking->id));
     }
 
-    public function showLocation(Request $request, Stocktaking $stocktaking, Location $location): Response
+    public function showLocation(Stocktaking $stocktaking, Location $location): Response
     {
-        if ($request->user()->company_id != $stocktaking->company_id) abort(403);
+        $this->authorize('perform', [$stocktaking, $location]);
 
-        $location->load('aisle');
-
-        if ($location->aisle->warehouse_id != $stocktaking->warehouse_id) abort(403);
-
-        $location->load(['products' => function ($query) use ($stocktaking) {
+        $location->load(['aisle', 'products' => function ($query) use ($stocktaking) {
             $query->where('stocktaking_id', $stocktaking->id);
         }]);
 
@@ -149,13 +137,9 @@ class StocktakingController extends Controller
         ]);
     }
 
-    public function resetLocation(Request $request, Stocktaking $stocktaking, Location $location): RedirectResponse
+    public function resetLocation(Stocktaking $stocktaking, Location $location): RedirectResponse
     {
-        if ($request->user()->company_id != $stocktaking->company_id) abort(403);
-
-        $location->load('aisle');
-
-        if ($location->aisle->warehouse_id != $stocktaking->warehouse_id) abort(403);
+        $this->authorize('perform', [$stocktaking, $location]);
 
         ProductStocktaking::where('stocktaking_id', $stocktaking->id)->where('location_id', $location->id)->delete();
 
@@ -167,7 +151,7 @@ class StocktakingController extends Controller
 
     public function finalize(Request $request, Stocktaking $stocktaking): RedirectResponse
     {
-        if ($request->user()->company_id != $stocktaking->company_id) abort(403);
+        $this->authorize('update', $stocktaking);
 
         $validated = $request->validate([
             'observations' => 'nullable|string|max:255',
@@ -184,9 +168,9 @@ class StocktakingController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Request $request, Stocktaking $stocktaking): Response
+    public function show(Stocktaking $stocktaking): Response
     {
-        if ($request->user()->company_id != $stocktaking->company_id) abort(403);
+        $this->authorize('view', $stocktaking);
 
         $stocktaking->load(['warehouse', 'products']);
         $stocktaking->products->each(function ($product) {
@@ -203,7 +187,7 @@ class StocktakingController extends Controller
      */
     public function export(Request $request, Stocktaking $stocktaking): void
     {
-        if ($request->user()->company_id != $stocktaking->company_id) abort(403);
+        $this->authorize('view', $stocktaking);
 
         $rows = [];
 
@@ -248,7 +232,7 @@ class StocktakingController extends Controller
      */
     public function edit(Request $request, Stocktaking $stocktaking): Response
     {
-        if ($request->user()->company_id != $stocktaking->company_id) abort(403);
+        $this->authorize('update', $stocktaking);
 
         return Inertia::render('Company/Stocktakings/Edit', [
             'stocktaking' => $stocktaking->load(['products']),
@@ -261,7 +245,7 @@ class StocktakingController extends Controller
      */
     public function update(Request $request, Stocktaking $stocktaking): RedirectResponse
     {
-        if ($request->user()->company_id != $stocktaking->company_id) abort(403);
+        $this->authorize('update', $stocktaking);
 
         $validated = $request->validate([
             'warehouse_id' => [Rule::exists('warehouses', 'id')->where(function ($query) use ($request) {
@@ -278,9 +262,9 @@ class StocktakingController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Request $request, Stocktaking $stocktaking): RedirectResponse
+    public function destroy(Stocktaking $stocktaking): RedirectResponse
     {
-        if ($request->user()->company_id != $stocktaking->company_id) abort(403);
+        $this->authorize('delete', $stocktaking);
 
         $stocktaking->delete();
 

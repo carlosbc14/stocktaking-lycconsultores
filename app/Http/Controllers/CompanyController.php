@@ -11,19 +11,13 @@ use Inertia\Response;
 
 class CompanyController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware(['permission:write company'])->only(['create', 'store']);
-        $this->middleware(['permission:read company'])->only(['show']);
-        $this->middleware(['permission:edit company'])->only(['edit', 'update']);
-        $this->middleware(['permission:delete company'])->only(['destroy']);
-    }
-
     /**
      * Show the form for creating a new resource.
      */
     public function create(): Response
     {
+        $this->authorize('create', Company::class);
+
         return Inertia::render('Company/Create');
     }
 
@@ -32,6 +26,8 @@ class CompanyController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        $this->authorize('create', Company::class);
+
         $request->merge([
             'rut' => Rut::parse($request->rut)->quiet()->format(),
         ]);
@@ -54,14 +50,17 @@ class CompanyController extends Controller
      */
     public function show(Request $request): Response
     {
-        if (!$request->user()->company_id) abort(404);
+        $this->authorize('view', Company::class);
 
         $company = Company::with(['users'])->findOrFail($request->user()->company->id);
 
-        $company->users->map(function ($user) {
+        $company->users->each(function ($user) use ($request) {
             $user->role = $user->roles->first();
             $user->makeHidden('roles');
-            return $user;
+            $user->permissions = [
+                'canEdit' => $request->user()->can('update', $user),
+                'canDelete' => $request->user()->can('delete', $user),
+            ];
         });
 
         return Inertia::render('Company/Show', [
@@ -74,7 +73,7 @@ class CompanyController extends Controller
      */
     public function edit(Request $request): Response
     {
-        if (!$request->user()->company_id) abort(404);
+        $this->authorize('update', Company::class);
 
         return Inertia::render('Company/Edit', [
             'company' => Company::findOrFail($request->user()->company->id),
@@ -86,7 +85,7 @@ class CompanyController extends Controller
      */
     public function update(Request $request): RedirectResponse
     {
-        if (!$request->user()->company_id) abort(404);
+        $this->authorize('update', Company::class);
 
         $company = Company::findOrFail($request->user()->company->id);
 
@@ -111,7 +110,7 @@ class CompanyController extends Controller
      */
     public function destroy(Request $request): RedirectResponse
     {
-        if (!$request->user()->company_id) abort(404);
+        $this->authorize('delete', Company::class);
 
         Company::findOrFail($request->user()->company->id)->delete();
 

@@ -12,14 +12,6 @@ use Inertia\Response;
 
 class GroupController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware(['permission:write groups'])->only(['create', 'store']);
-        $this->middleware(['permission:read groups'])->only(['index']);
-        $this->middleware(['permission:edit groups'])->only(['edit', 'update']);
-        $this->middleware(['permission:delete groups'])->only(['destroy']);
-    }
-
     private function getAllGroupIds(Group $group): Collection
     {
         $group_ids = collect([$group->id]);
@@ -36,6 +28,8 @@ class GroupController extends Controller
      */
     public function index(Request $request): Response
     {
+        $this->authorize('viewAny', Group::class);
+
         return Inertia::render('Company/Groups/Index', [
             'groups' => $request->user()->company->groups()->with('parentGroup')->get(),
         ]);
@@ -46,6 +40,8 @@ class GroupController extends Controller
      */
     public function create(Request $request): Response
     {
+        $this->authorize('create', Group::class);
+
         return Inertia::render('Company/Groups/Create', [
             'groups' => $request->user()->company->groups,
         ]);
@@ -56,6 +52,8 @@ class GroupController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        $this->authorize('create', Group::class);
+
         $validated = $request->validate([
             'groups.*.name' => ['required', 'string', 'max:255', Rule::unique('groups')->where(function ($query) use ($request) {
                 return $query->where('company_id', $request->user()->company_id);
@@ -81,7 +79,7 @@ class GroupController extends Controller
      */
     public function edit(Request $request, Group $group): Response
     {
-        if ($request->user()->company_id != $group->company_id) abort(403);
+        $this->authorize('update', $group);
 
         return Inertia::render('Company/Groups/Edit', [
             'group' => $group,
@@ -94,7 +92,7 @@ class GroupController extends Controller
      */
     public function update(Request $request, Group $group): RedirectResponse
     {
-        if ($request->user()->company_id != $group->company_id) abort(403);
+        $this->authorize('update', $group);
 
         $all_child_groups = $this->getAllGroupIds($group);
 
@@ -115,9 +113,9 @@ class GroupController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Request $request, Group $group): RedirectResponse
+    public function destroy(Group $group): RedirectResponse
     {
-        if ($request->user()->company_id != $group->company_id) abort(403);
+        $this->authorize('delete', $group);
 
         $group->delete();
 

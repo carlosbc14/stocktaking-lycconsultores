@@ -11,19 +11,13 @@ use Inertia\Response;
 
 class WarehouseController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware(['permission:write warehouses'])->only(['create', 'store']);
-        $this->middleware(['permission:read warehouses'])->only(['index', 'show']);
-        $this->middleware(['permission:edit warehouses'])->only(['edit', 'update']);
-        $this->middleware(['permission:delete warehouses'])->only(['destroy']);
-    }
-
     /**
      * Display a listing of the resource.
      */
     public function index(Request $request): Response
     {
+        $this->authorize('viewAny', Warehouse::class);
+
         return Inertia::render('Company/Warehouses/Index', [
             'warehouses' => $request->user()->company->warehouses,
         ]);
@@ -34,6 +28,8 @@ class WarehouseController extends Controller
      */
     public function create(): Response
     {
+        $this->authorize('create', Warehouse::class);
+
         return Inertia::render('Company/Warehouses/Create');
     }
 
@@ -42,6 +38,8 @@ class WarehouseController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        $this->authorize('create', Warehouse::class);
+
         $request->validate([
             'code' => ['required', 'string', 'max:255', Rule::unique('warehouses')->where(function ($query) use ($request) {
                 return $query->where('company_id', $request->user()->company_id);
@@ -63,9 +61,9 @@ class WarehouseController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Request $request, Warehouse $warehouse): Response
+    public function show(Warehouse $warehouse): Response
     {
-        if ($request->user()->company_id != $warehouse->company_id) abort(403);
+        $this->authorize('view', $warehouse);
 
         return Inertia::render('Company/Warehouses/Show', [
             'warehouse' => $warehouse->load(['aisles.locations', 'aisles.group']),
@@ -75,9 +73,9 @@ class WarehouseController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Request $request, Warehouse $warehouse): Response
+    public function edit(Warehouse $warehouse): Response
     {
-        if ($request->user()->company_id != $warehouse->company_id) abort(403);
+        $this->authorize('update', $warehouse);
 
         return Inertia::render('Company/Warehouses/Edit', [
             'warehouse' => $warehouse->load(['aisles.locations', 'aisles.group']),
@@ -89,7 +87,7 @@ class WarehouseController extends Controller
      */
     public function update(Request $request, Warehouse $warehouse): RedirectResponse
     {
-        if ($request->user()->company_id != $warehouse->company_id) abort(403);
+        $this->authorize('update', $warehouse);
 
         $validated = $request->validate([
             'code' => ['string', 'max:255', Rule::unique('warehouses')->where(function ($query) use ($warehouse) {
@@ -106,9 +104,9 @@ class WarehouseController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Request $request, Warehouse $warehouse): RedirectResponse
+    public function destroy(Warehouse $warehouse): RedirectResponse
     {
-        if ($request->user()->company_id != $warehouse->company_id) abort(403);
+        $this->authorize('delete', $warehouse);
 
         $warehouse->delete();
 
