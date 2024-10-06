@@ -35,7 +35,7 @@ export default function Edit({ auth, aisle, groups }) {
     const submit = (e) => {
         e.preventDefault();
 
-        patch(route('aisles.update', aisle.id), {
+        patch(route('warehouses.aisles.update', aisle.id), {
             preserveScroll: true,
             onSuccess: () =>
                 toast({

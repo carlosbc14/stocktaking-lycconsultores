@@ -46,7 +46,7 @@ export default function Create({ auth, warehouse_id, groups }) {
     const submit = (e) => {
         e.preventDefault();
 
-        post(route('aisles.store'), {
+        post(route('warehouses.aisles.store'), {
             preserveScroll: true,
             onSuccess: () =>
                 toast({

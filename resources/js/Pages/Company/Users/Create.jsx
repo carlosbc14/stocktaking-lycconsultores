@@ -29,7 +29,7 @@ export default function Create({ auth, roles }) {
     const submit = (e) => {
         e.preventDefault();
 
-        post(route('users.store'), {
+        post(route('company.users.store'), {
             preserveScroll: true,
             onSuccess: () =>
                 toast({

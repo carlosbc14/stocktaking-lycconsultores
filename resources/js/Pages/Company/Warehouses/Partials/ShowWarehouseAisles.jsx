@@ -90,7 +90,7 @@ export default function ShowWarehouseAisles({
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                             {canEdit && (
-                                <Link href={route('aisles.edit', aisle.id)} className="w-full">
+                                <Link href={route('warehouses.aisles.edit', aisle.id)} className="w-full">
                                     <DropdownMenuItem>
                                         <Pencil className="mr-2 h-4 w-4" /> {__('Edit')}
                                     </DropdownMenuItem>
@@ -117,7 +117,7 @@ export default function ShowWarehouseAisles({
                                                 <Button variant="outline">{__('Cancel')}</Button>
                                             </DialogClose>
                                             <Link
-                                                href={route('aisles.destroy', aisle.id)}
+                                                href={route('warehouses.aisles.destroy', aisle.id)}
                                                 method="delete"
                                                 as="Button"
                                                 className={buttonVariants({ variant: 'destructive' })}
@@ -143,7 +143,7 @@ export default function ShowWarehouseAisles({
 
                 {canCreate && (
                     <div className="flex justify-end">
-                        <Link href={route('aisles.create', { warehouse_id })}>
+                        <Link href={route('warehouses.aisles.create', { warehouse_id })}>
                             <Button>{__('Add :name', { name: __('aisles') })}</Button>
                         </Link>
                     </div>

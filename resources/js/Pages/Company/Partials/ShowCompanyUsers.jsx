@@ -81,7 +81,7 @@ export default function ShowCompanyUsers({
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                             {canEdit && user.permissions.canEdit && (
-                                <Link href={route('users.edit', user.id)} className="w-full">
+                                <Link href={route('company.users.edit', user.id)} className="w-full">
                                     <DropdownMenuItem>
                                         <Pencil className="mr-2 h-4 w-4" /> {__('Edit')}
                                     </DropdownMenuItem>
@@ -108,7 +108,7 @@ export default function ShowCompanyUsers({
                                                 <Button variant="outline">{__('Cancel')}</Button>
                                             </DialogClose>
                                             <Link
-                                                href={route('users.destroy', user.id)}
+                                                href={route('company.users.destroy', user.id)}
                                                 method="delete"
                                                 as="Button"
                                                 className={buttonVariants({ variant: 'destructive' })}
@@ -134,7 +134,7 @@ export default function ShowCompanyUsers({
 
                 {canCreate && (
                     <div className="flex justify-end">
-                        <Link href={route('users.create')}>
+                        <Link href={route('company.users.create')}>
                             <Button>{__('Add :name', { name: __('user') })}</Button>
                         </Link>
                     </div>

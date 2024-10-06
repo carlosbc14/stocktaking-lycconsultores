@@ -26,7 +26,9 @@ export function SideBar({ links, className = '' }) {
                                     href={route(props.route)}
                                     className={cn(
                                         buttonVariants({
-                                            variant: route().current(props.route) ? 'default' : 'secondary',
+                                            variant: route().current(props.route.replace(/\..*/, '.*'))
+                                                ? 'default'
+                                                : 'secondary',
                                         }),
                                         'w-full justify-start'
                                     )}

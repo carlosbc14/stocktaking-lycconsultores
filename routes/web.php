@@ -47,14 +47,17 @@ Route::middleware(LocaleCookie::class)->group(function () {
         Route::get('/company/edit', [CompanyController::class, 'edit'])->name('company.edit');
         Route::patch('/company', [CompanyController::class, 'update'])->name('company.update');
         Route::delete('/company', [CompanyController::class, 'destroy'])->name('company.destroy');
+        Route::name('company')->resource('/company/users', UserController::class)->only(['create', 'store', 'edit', 'update', 'destroy']);
 
-        Route::resource('/users', UserController::class)->only(['create', 'store', 'edit', 'update', 'destroy']);
-        Route::resource('/warehouses', WarehouseController::class);
         Route::resource('/groups', GroupController::class)->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
+
+        Route::resource('/warehouses', WarehouseController::class);
+        Route::name('warehouses')->resource('/warehouses/aisles', AisleController::class)->only(['create', 'store', 'edit', 'update', 'destroy']);
+
         Route::resource('/products', ProductController::class)->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
         Route::get('/products/export', [ProductController::class, 'export'])->name('products.export');
         Route::post('/products/import', [ProductController::class, 'import'])->name('products.import');
-        Route::resource('/aisles', AisleController::class)->only(['create', 'store', 'edit', 'update', 'destroy']);
+
         Route::resource('/stocktakings', StocktakingController::class);
         Route::get('/stocktakings/{stocktaking}/select-location', [StocktakingController::class, 'selectLocation'])->name('stocktakings.selectLocation');
         Route::get('/stocktakings/{stocktaking}/run/{location}', [StocktakingController::class, 'run'])->name('stocktakings.run');

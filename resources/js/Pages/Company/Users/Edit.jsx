@@ -29,7 +29,7 @@ export default function Edit({ auth, user, roles }) {
     const submit = (e) => {
         e.preventDefault();
 
-        patch(route('users.update', user.id), {
+        patch(route('company.users.update', user.id), {
             preserveScroll: true,
             onSuccess: () =>
                 toast({
