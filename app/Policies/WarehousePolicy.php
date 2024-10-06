@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Models\Aisle;
 use App\Models\User;
 use App\Models\Warehouse;
 
@@ -37,6 +38,14 @@ class WarehousePolicy
     public function update(User $user, Warehouse $warehouse): bool
     {
         return $user->company->is($warehouse->company) && $user->can('edit warehouses');
+    }
+
+    /**
+     * Determine whether the user can update the model.
+     */
+    public function updateAisle(User $user, Warehouse $warehouse, Aisle $aisle): bool
+    {
+        return $user->company->is($warehouse->company) && $aisle->warehouse->is($warehouse) && $user->can('edit warehouses');
     }
 
     /**

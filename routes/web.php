@@ -52,7 +52,7 @@ Route::middleware(LocaleCookie::class)->group(function () {
         Route::resource('/groups', GroupController::class)->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
 
         Route::resource('/warehouses', WarehouseController::class);
-        Route::name('warehouses')->resource('/warehouses/aisles', AisleController::class)->only(['create', 'store', 'edit', 'update', 'destroy']);
+        Route::name('warehouses')->resource('/warehouses/{warehouse}/aisles', AisleController::class)->only(['create', 'store', 'edit', 'update', 'destroy']);
 
         Route::resource('/products', ProductController::class)->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
         Route::get('/products/export', [ProductController::class, 'export'])->name('products.export');

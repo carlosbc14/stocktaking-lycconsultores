@@ -16,14 +16,12 @@ class AisleController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create(Request $request): Response
+    public function create(Request $request, Warehouse $warehouse): Response
     {
-        $warehouse = Warehouse::findOrFail($request->warehouse_id);
-
         $this->authorize('update', $warehouse);
 
         return Inertia::render('Company/Warehouses/Aisles/Create', [
-            'warehouse_id' => $request->warehouse_id,
+            'warehouse_id' => $warehouse->id,
             'groups' => $request->user()->company->groups,
         ]);
     }
@@ -31,10 +29,8 @@ class AisleController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request, Warehouse $warehouse): RedirectResponse
     {
-        $warehouse = Warehouse::findOrFail($request->warehouse_id);
-
         $this->authorize('update', $warehouse);
 
         $validated = $request->validate([
@@ -77,11 +73,12 @@ class AisleController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Request $request, Aisle $aisle): Response
+    public function edit(Request $request, Warehouse $warehouse, Aisle $aisle): Response
     {
-        $this->authorize('update', $aisle->warehouse);
+        $this->authorize('updateAisle', [$warehouse, $aisle]);
 
         return Inertia::render('Company/Warehouses/Aisles/Edit', [
+            'warehouse_id' => $warehouse->id,
             'aisle' => $aisle->load('locations'),
             'groups' => $request->user()->company->groups,
         ]);
@@ -90,9 +87,9 @@ class AisleController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Aisle $aisle): RedirectResponse
+    public function update(Request $request, Warehouse $warehouse, Aisle $aisle): RedirectResponse
     {
-        $this->authorize('update', $aisle->warehouse);
+        $this->authorize('updateAisle', [$warehouse, $aisle]);
 
         $validated = $request->validate([
             'code' => ['regex:/^[A-Za-z0-9]{2}$/', Rule::unique('aisles')->where(function ($query) use ($aisle) {
@@ -166,20 +163,18 @@ class AisleController extends Controller
 
         $aisle->update($validated);
 
-        return redirect(route('warehouses.show', $aisle->warehouse_id));
+        return redirect(route('warehouses.show', $warehouse->id));
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Aisle $aisle): RedirectResponse
+    public function destroy(Warehouse $warehouse, Aisle $aisle): RedirectResponse
     {
-        $this->authorize('delete', $aisle->warehouse);
-
-        $warehouse_id = $aisle->warehouse_id;
+        $this->authorize('updateAisle', [$warehouse, $aisle]);
 
         $aisle->delete();
 
-        return redirect(route('warehouses.show', $warehouse_id));
+        return redirect(route('warehouses.show', $warehouse->id));
     }
 }

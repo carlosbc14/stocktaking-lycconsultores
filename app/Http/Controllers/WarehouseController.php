@@ -53,9 +53,7 @@ class WarehouseController extends Controller
             'company_id' => $request->user()->company_id,
         ]);
 
-        return redirect(route('aisles.create', [
-            'warehouse_id' => $warehouse->id,
-        ]));
+        return redirect(route('warehouses.aisles.create', $warehouse->id));
     }
 
     /**

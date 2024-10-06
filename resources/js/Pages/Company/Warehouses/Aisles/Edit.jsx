@@ -14,7 +14,7 @@ import {
 import { useForm } from '@inertiajs/react';
 import { InputError } from '@/Components';
 
-export default function Edit({ auth, aisle, groups }) {
+export default function Edit({ auth, warehouse_id, aisle, groups }) {
     const { __ } = useTraslations();
     const { toast } = useToast();
 
@@ -35,7 +35,7 @@ export default function Edit({ auth, aisle, groups }) {
     const submit = (e) => {
         e.preventDefault();
 
-        patch(route('warehouses.aisles.update', aisle.id), {
+        patch(route('warehouses.aisles.update', [warehouse_id, aisle.id]), {
             preserveScroll: true,
             onSuccess: () =>
                 toast({
