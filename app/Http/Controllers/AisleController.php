@@ -180,6 +180,6 @@ class AisleController extends Controller
 
         $aisle->delete();
 
-        return redirect(route('warehouses.edit', $warehouse_id));
+        return redirect(route('warehouses.show', $warehouse_id));
     }
 }
