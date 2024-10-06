@@ -66,20 +66,14 @@ export default function LocationTable({ stocktakingId, locations = [], className
                                     {locationId >= 0 ? (
                                         hasProducts ? (
                                             <Link
-                                                href={route('stocktakings.showLocation', {
-                                                    stocktaking: stocktakingId,
-                                                    location: locationId,
-                                                })}
+                                                href={route('stocktakings.showLocation', [stocktakingId, locationId])}
                                                 className={cn(buttonVariants({ variant: 'link' }), 'p-0')}
                                             >
                                                 {cell}
                                             </Link>
                                         ) : (
                                             <Link
-                                                href={route('stocktakings.run', {
-                                                    stocktaking: stocktakingId,
-                                                    location: locationId,
-                                                })}
+                                                href={route('stocktakings.run', [stocktakingId, locationId])}
                                                 className={cn(buttonVariants({ variant: 'link' }), 'p-0')}
                                             >
                                                 {cell}

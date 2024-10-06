@@ -57,10 +57,7 @@ export default function ShowStocktakingLocationProducts({
                 {canReset && (
                     <div className="flex justify-end">
                         <Link
-                            href={route('stocktakings.resetLocation', {
-                                stocktaking: stocktakingId,
-                                location: locationId,
-                            })}
+                            href={route('stocktakings.resetLocation', [stocktakingId, locationId])}
                             method="post"
                             as="button"
                             className={buttonVariants({ variant: 'default' })}
