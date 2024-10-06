@@ -1,6 +1,6 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import ShowStocktakingProducts from './Partials/Showstocktakingproducts';
-import ShowStocktakingInformation from './Partials/ShowstocktakingInformation';
+import ShowStocktakingProducts from './Partials/ShowStocktakingProducts';
+import ShowStocktakingInformation from './Partials/ShowStocktakingInformation';
 import { useTraslations } from '@/Contexts/TranslationsContext';
 
 export default function Show({ auth, stocktaking }) {

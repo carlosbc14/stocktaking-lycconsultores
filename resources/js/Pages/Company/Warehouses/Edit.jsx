@@ -3,7 +3,6 @@ import { useTraslations } from '@/Contexts/TranslationsContext';
 import { Button, Input, Label, useToast } from '@/Components/ui';
 import { useForm } from '@inertiajs/react';
 import { InputError } from '@/Components';
-import ShowWarehouseAisles from './Partials/ShowWarehouseAisles';
 
 export default function Edit({ auth, warehouse }) {
     const { __ } = useTraslations();
