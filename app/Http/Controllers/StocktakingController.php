@@ -172,7 +172,7 @@ class StocktakingController extends Controller
     {
         $this->authorize('view', $stocktaking);
 
-        $stocktaking->load(['warehouse', 'products']);
+        $stocktaking->load(['warehouse', 'products.group']);
         $stocktaking->products->each(function ($product) {
             $product->pivot->load('location.aisle');
         });
