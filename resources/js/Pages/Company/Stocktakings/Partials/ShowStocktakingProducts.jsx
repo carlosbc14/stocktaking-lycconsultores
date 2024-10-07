@@ -48,6 +48,11 @@ export default function ShowStocktakingProducts({
                 row.original.pivot.expiry_date ? new Date(row.original.pivot.expiry_date).toLocaleString(locale) : '-',
         },
         {
+            accessorKey: 'price',
+            header: <div className="uppercase">{__('Price')}</div>,
+            cell: ({ row }) => row.original.price ?? '-',
+        },
+        {
             accessorKey: 'location',
             header: <div className="uppercase">{__('Location')}</div>,
             cell: ({ row }) =>
