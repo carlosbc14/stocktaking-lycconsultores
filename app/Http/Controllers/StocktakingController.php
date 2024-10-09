@@ -116,7 +116,7 @@ class StocktakingController extends Controller
             $stocktaking->products()->attach($product['id'], [
                 'batch' => $product['batch'] ?? null,
                 'quantity' => $product['quantity'],
-                'location_id' => $validated['location_id'],
+                'location_id' => $location->id,
             ]);
         }
 
