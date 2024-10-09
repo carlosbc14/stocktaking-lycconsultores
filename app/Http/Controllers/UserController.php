@@ -93,6 +93,7 @@ class UserController extends Controller
             })],
             'name' => 'string|max:255',
             'email' => 'string|lowercase|email|max:255|unique:users,email,' . $user->id,
+            'password' => ['nullable', Password::defaults()],
             'role' => 'exists:roles,name',
         ]);
 
@@ -100,6 +101,12 @@ class UserController extends Controller
             $user->syncRoles($validated['role']);
 
             unset($validated['role']);
+        }
+
+        if (!empty($validated['password'])) {
+            $validated['password'] = Hash::make($validated['password']);
+        } else {
+            unset($validated['password']);
         }
 
         $user->update($validated);

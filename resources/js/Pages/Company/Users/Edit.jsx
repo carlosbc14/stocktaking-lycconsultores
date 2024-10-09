@@ -12,7 +12,7 @@ import {
     useToast,
 } from '@/Components/ui';
 import { useForm } from '@inertiajs/react';
-import { InputError } from '@/Components';
+import { InputError, PasswordInput } from '@/Components';
 
 export default function Edit({ auth, user, roles }) {
     const { __ } = useTraslations();
@@ -22,7 +22,7 @@ export default function Edit({ auth, user, roles }) {
         rut: user.rut,
         name: user.name,
         email: user.email,
-        password: user.password,
+        password: '',
         role: user.role,
     });
 
@@ -91,6 +91,19 @@ export default function Edit({ auth, user, roles }) {
                             />
 
                             <InputError className="mt-2" message={__(errors.email)} />
+                        </div>
+
+                        <div>
+                            <Label htmlFor="password">{__('Password')}</Label>
+
+                            <PasswordInput
+                                id="password"
+                                value={data.password}
+                                className="mt-1 block w-full"
+                                onChange={(e) => setData('password', e.target.value)}
+                            />
+
+                            <InputError message={__(errors.password)} className="mt-2" />
                         </div>
 
                         <div>
