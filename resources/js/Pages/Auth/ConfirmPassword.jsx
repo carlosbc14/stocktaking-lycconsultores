@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import GuestLayout from '@/Layouts/GuestLayout';
-import { Button, Input, Label } from '@/Components/ui';
-import { InputError } from '@/Components';
+import { Button, Label } from '@/Components/ui';
+import { InputError, PasswordInput } from '@/Components';
 import { useTraslations } from '@/Contexts/TranslationsContext';
 import { useForm } from '@inertiajs/react';
 
@@ -33,9 +33,8 @@ export default function ConfirmPassword() {
                 <div className="mt-4">
                     <Label htmlFor="password" value={__('Password')} />
 
-                    <Input
+                    <PasswordInput
                         id="password"
-                        type="password"
                         name="password"
                         value={data.password}
                         className="mt-1 block w-full"

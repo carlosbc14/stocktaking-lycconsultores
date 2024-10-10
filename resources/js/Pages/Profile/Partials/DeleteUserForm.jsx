@@ -9,11 +9,10 @@ import {
     DialogHeader,
     DialogTitle,
     DialogTrigger,
-    Input,
     Label,
     useToast,
 } from '@/Components/ui';
-import { InputError } from '@/Components';
+import { InputError, PasswordInput } from '@/Components';
 import { useTraslations } from '@/Contexts/TranslationsContext';
 import { useForm } from '@inertiajs/react';
 
@@ -80,9 +79,8 @@ export default function DeleteUserForm({ className = '' }) {
                                 {__('Password')}
                             </Label>
 
-                            <Input
+                            <PasswordInput
                                 id="password"
-                                type="password"
                                 name="password"
                                 ref={passwordInput}
                                 value={data.password}

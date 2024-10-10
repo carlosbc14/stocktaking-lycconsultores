@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import GuestLayout from '@/Layouts/GuestLayout';
 import { Button, Input, Label, buttonVariants } from '@/Components/ui';
-import { Checkbox, InputError } from '@/Components';
+import { Checkbox, InputError, PasswordInput } from '@/Components';
 import { useTraslations } from '@/Contexts/TranslationsContext';
 import { Link, useForm } from '@inertiajs/react';
 
@@ -50,9 +50,8 @@ export default function Login({ status, canResetPassword }) {
                 <div className="mt-4">
                     <Label htmlFor="password">{__('Password')}</Label>
 
-                    <Input
+                    <PasswordInput
                         id="password"
-                        type="password"
                         name="password"
                         value={data.password}
                         className="mt-1 block w-full"
