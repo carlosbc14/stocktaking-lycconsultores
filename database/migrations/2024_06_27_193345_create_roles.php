@@ -47,7 +47,7 @@ return new class extends Migration
             'write warehouses', 'read warehouses', 'edit warehouses', 'delete warehouses',
             'write groups', 'read groups', 'edit groups', 'delete groups',
             'write products', 'read products', 'edit products', 'delete products',
-            'read stocktakings',
+            'write stocktakings', 'read stocktakings', 'edit stocktakings', 'delete stocktakings',
         ]);
 
         Role::create(['name' => 'admin'])->givePermissionTo([
