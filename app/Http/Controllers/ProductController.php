@@ -33,35 +33,69 @@ class ProductController extends Controller
     {
         $this->authorize('viewAny', Product::class);
 
-        $rows = [];
+        $availableColumns = [
+            'code' => __('Code'),
+            'description' => __('Description'),
+            'group' => __('Group'),
+            'unit' => __('Unit'),
+            'origin' => __('Origin'),
+            'currency' => __('Currency'),
+            'price' => __('Price'),
+            'batch' => __('Batch'),
+            'expiry_date' => __('Expiry Date'),
+            'enabled' => __('Enabled'),
+        ];
 
-        $request->user()->company->products()->with('group')->get()->each(function ($product) use (&$rows) {
-            $rows[] = [
-                $product['code'],
-                $product['description'],
-                $product['group'] ? $product['group']['name'] : '',
-                $product['unit'] ?? '',
-                $product['origin'] ?? '',
-                $product['currency'] ?? '',
-                $product['price'] ?? '',
-                $product['batch'] ? __('Yes')[0] : __('No')[0],
-                $product['expiry_date'] ? __('Yes')[0] : __('No')[0],
-                $product['enabled'] ? __('Yes')[0] : __('No')[0],
-            ];
+        $selectedColumns = $request->input('columns', $availableColumns);
+        if (!isset($selectedColumns['code'])) $selectedColumns = array_merge(['code' => true], $selectedColumns);
+
+        $header = array_filter($availableColumns, fn($key) => isset($selectedColumns[$key]) && $selectedColumns[$key], ARRAY_FILTER_USE_KEY);
+
+        $rows = [];
+        $request->user()->company->products()->with('group')->get()->each(function ($product) use (&$rows, $selectedColumns) {
+            $row = [];
+
+            foreach ($selectedColumns as $column => $inExcel) {
+                if ($inExcel) {
+                    switch ($column) {
+                        case 'code':
+                            $row[] = $product['code'];
+                            break;
+                        case 'description':
+                            $row[] = $product['description'] ?? '';
+                            break;
+                        case 'group':
+                            $row[] = $product['group'] ? $product['group']['name'] : '';
+                            break;
+                        case 'unit':
+                            $row[] = $product['unit'] ?? '';
+                            break;
+                        case 'origin':
+                            $row[] = $product['origin'] ?? '';
+                            break;
+                        case 'currency':
+                            $row[] = $product['currency'] ?? '';
+                            break;
+                        case 'price':
+                            $row[] = $product['price'] ?? '';
+                            break;
+                        case 'batch':
+                            $row[] = $product['batch'] ? __('Yes')[0] : __('No')[0];
+                            break;
+                        case 'expiry_date':
+                            $row[] = $product['expiry_date'] ? __('Yes')[0] : __('No')[0];
+                            break;
+                        case 'enabled':
+                            $row[] = $product['enabled'] ? __('Yes')[0] : __('No')[0];
+                            break;
+                    }
+                }
+            }
+
+            $rows[] = $row;
         });
 
-        SimpleExcelWriter::streamDownload('products.xlsx')->addHeader([
-            __('Code'),
-            __('Description'),
-            __('Group'),
-            __('Unit'),
-            __('Origin'),
-            __('Currency'),
-            __('Price'),
-            __('Batch'),
-            __('Expiry Date'),
-            __('Enabled'),
-        ])->addRows($rows);
+        SimpleExcelWriter::streamDownload('products.xlsx')->addHeader($header)->addRows($rows);
     }
 
     /**

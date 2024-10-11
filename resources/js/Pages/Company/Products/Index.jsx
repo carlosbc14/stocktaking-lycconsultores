@@ -16,14 +16,29 @@ import {
     DropdownMenuTrigger,
     buttonVariants,
     useToast,
+    Label,
+    Switch,
 } from '@/Components/ui';
 import { Link, useForm } from '@inertiajs/react';
 import { DataTable, InputError } from '@/Components';
 import { ArrowUpDown, MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
+import { useState } from 'react';
 
 export default function Index({ auth, products, failures }) {
     const { __ } = useTraslations();
     const { toast } = useToast();
+
+    const [selectedColumns, setSelectedColumns] = useState({
+        description: true,
+        group: true,
+        unit: true,
+        origin: true,
+        currency: true,
+        price: true,
+        batch: true,
+        expiry_date: true,
+        enabled: true,
+    });
 
     const { setData, post, errors, processing } = useForm({ excel: null });
 
@@ -164,9 +179,135 @@ export default function Index({ auth, products, failures }) {
             <div className="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
                 {canCreate && (
                     <div className="flex justify-end gap-4 mb-6">
-                        <a href={route('products.export')}>
-                            <Button>{__('Export :name', { name: __('products') })}</Button>
-                        </a>
+                        <Dialog>
+                            <DialogTrigger asChild>
+                                <Button>{__('Export :name', { name: __('products') })}</Button>
+                            </DialogTrigger>
+                            <DialogContent aria-describedby={undefined}>
+                                <DialogHeader>
+                                    <DialogTitle>{__('Choose :name', { name: __('Columns') })}</DialogTitle>
+                                </DialogHeader>
+
+                                <div className="flex items-center space-x-2">
+                                    <Switch name="code" checked disabled />
+                                    <Label htmlFor="code" className="ms-2">
+                                        {__('Code')}
+                                    </Label>
+                                </div>
+
+                                <div className="flex items-center">
+                                    <Switch
+                                        name="description"
+                                        checked={selectedColumns.description}
+                                        onCheckedChange={(v) =>
+                                            setSelectedColumns({ ...selectedColumns, description: v })
+                                        }
+                                    />
+                                    <Label htmlFor="description" className="ms-2">
+                                        {__('Description')}
+                                    </Label>
+                                </div>
+
+                                <div className="flex">
+                                    <Switch
+                                        name="group"
+                                        checked={selectedColumns.group}
+                                        onCheckedChange={(v) => setSelectedColumns({ ...selectedColumns, group: v })}
+                                    />
+                                    <Label htmlFor="group" className="ms-2">
+                                        {__('Group')}
+                                    </Label>
+                                </div>
+
+                                <div className="flex">
+                                    <Switch
+                                        name="unit"
+                                        checked={selectedColumns.unit}
+                                        onCheckedChange={(v) => setSelectedColumns({ ...selectedColumns, unit: v })}
+                                    />
+                                    <Label htmlFor="unit" className="ms-2">
+                                        {__('Unit')}
+                                    </Label>
+                                </div>
+
+                                <div className="flex">
+                                    <Switch
+                                        name="origin"
+                                        checked={selectedColumns.origin}
+                                        onCheckedChange={(v) => setSelectedColumns({ ...selectedColumns, origin: v })}
+                                    />
+                                    <Label htmlFor="origin" className="ms-2">
+                                        {__('Origin')}
+                                    </Label>
+                                </div>
+
+                                <div className="flex">
+                                    <Switch
+                                        name="currency"
+                                        checked={selectedColumns.currency}
+                                        onCheckedChange={(v) => setSelectedColumns({ ...selectedColumns, currency: v })}
+                                    />
+                                    <Label htmlFor="currency" className="ms-2">
+                                        {__('Currency')}
+                                    </Label>
+                                </div>
+
+                                <div className="flex">
+                                    <Switch
+                                        name="price"
+                                        checked={selectedColumns.price}
+                                        onCheckedChange={(v) => setSelectedColumns({ ...selectedColumns, price: v })}
+                                    />
+                                    <Label htmlFor="price" className="ms-2">
+                                        {__('Price')}
+                                    </Label>
+                                </div>
+
+                                <div className="flex">
+                                    <Switch
+                                        name="batch"
+                                        checked={selectedColumns.batch}
+                                        onCheckedChange={(v) => setSelectedColumns({ ...selectedColumns, batch: v })}
+                                    />
+                                    <Label htmlFor="batch" className="ms-2">
+                                        {__('Batch')}
+                                    </Label>
+                                </div>
+
+                                <div className="flex">
+                                    <Switch
+                                        name="expiry_date"
+                                        checked={selectedColumns.expiry_date}
+                                        onCheckedChange={(v) =>
+                                            setSelectedColumns({ ...selectedColumns, expiry_date: v })
+                                        }
+                                    />
+                                    <Label htmlFor="expiry_date" className="ms-2">
+                                        {__('Expiry Date')}
+                                    </Label>
+                                </div>
+
+                                <div className="flex">
+                                    <Switch
+                                        name="enabled"
+                                        checked={selectedColumns.enabled}
+                                        onCheckedChange={(v) => setSelectedColumns({ ...selectedColumns, enabled: v })}
+                                    />
+                                    <Label htmlFor="enabled" className="ms-2">
+                                        {__('Enabled')}
+                                    </Label>
+                                </div>
+
+                                <DialogFooter>
+                                    <DialogClose asChild>
+                                        <Button variant="outline">{__('Cancel')}</Button>
+                                    </DialogClose>
+                                    <a href={route('products.export', { columns: selectedColumns })}>
+                                        <Button>{__('Export :name', { name: __('products') })}</Button>
+                                    </a>
+                                </DialogFooter>
+                            </DialogContent>
+                        </Dialog>
 
                         <Dialog>
                             <DialogTrigger asChild>
