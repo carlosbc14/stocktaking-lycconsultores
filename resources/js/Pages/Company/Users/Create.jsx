@@ -112,7 +112,7 @@ export default function Create({ auth, roles }) {
 
                             <Select id="role" onValueChange={(v) => setData('role', v)}>
                                 <SelectTrigger className="mt-1 w-full">
-                                    <SelectValue placeholder={__('Select a role')} />
+                                    <SelectValue placeholder={__('Select a :name', { name: __('role') })} />
                                 </SelectTrigger>
                                 <SelectContent>
                                     {roles.map((role) => (
