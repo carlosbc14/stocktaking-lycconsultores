@@ -24,15 +24,6 @@ export default function ShowStocktakingLocationProducts({
             ),
         },
         {
-            accessorKey: 'pivot.batch',
-            header: <div className="uppercase">{__('Batch')}</div>,
-            cell: ({ row }) => row.original.pivot.batch ?? '-',
-        },
-        {
-            accessorKey: 'pivot.quantity',
-            header: <div className="uppercase">{__('Quantity')}</div>,
-        },
-        {
             accessorKey: 'description',
             header: ({ column }) => (
                 <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
@@ -42,9 +33,18 @@ export default function ShowStocktakingLocationProducts({
             ),
         },
         {
+            accessorKey: 'pivot.batch',
+            header: <div className="uppercase">{__('Batch')}</div>,
+            cell: ({ row }) => row.original.pivot.batch ?? '-',
+        },
+        {
             accessorKey: 'pivot.expiry_date',
             header: <div className="uppercase">{__('Expiry Date')}</div>,
             cell: ({ row }) => row.original.pivot.expiry_date ?? '-',
+        },
+        {
+            accessorKey: 'pivot.quantity',
+            header: <div className="uppercase">{__('Quantity')}</div>,
         },
     ];
 

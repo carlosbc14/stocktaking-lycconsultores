@@ -15,6 +15,16 @@ export default function ShowStocktakingProducts({
 
     const columns = [
         {
+            accessorKey: 'group.name',
+            header: ({ column }) => (
+                <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
+                    {__('Group')}
+                    <ArrowUpDown className="ml-2 h-4 w-4" />
+                </Button>
+            ),
+            cell: ({ row }) => (row.original.group ? row.original.group.name : '-'),
+        },
+        {
             accessorKey: 'code',
             header: ({ column }) => (
                 <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
@@ -22,15 +32,6 @@ export default function ShowStocktakingProducts({
                     <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
             ),
-        },
-        {
-            accessorKey: 'pivot.batch',
-            header: <div className="uppercase">{__('Batch')}</div>,
-            cell: ({ row }) => row.original.pivot.batch ?? '-',
-        },
-        {
-            accessorKey: 'pivot.quantity',
-            header: <div className="uppercase">{__('Quantity')}</div>,
         },
         {
             accessorKey: 'description',
@@ -42,19 +43,18 @@ export default function ShowStocktakingProducts({
             ),
         },
         {
-            accessorKey: 'group.name',
-            header: ({ column }) => (
-                <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
-                    {__('Group')}
-                    <ArrowUpDown className="ml-2 h-4 w-4" />
-                </Button>
-            ),
-            cell: ({ row }) => (row.original.group ? row.original.group.name : '-'),
+            accessorKey: 'pivot.batch',
+            header: <div className="uppercase">{__('Batch')}</div>,
+            cell: ({ row }) => row.original.pivot.batch ?? '-',
         },
         {
             accessorKey: 'pivot.expiry_date',
             header: <div className="uppercase">{__('Expiry Date')}</div>,
             cell: ({ row }) => row.original.pivot.expiry_date ?? '-',
+        },
+        {
+            accessorKey: 'pivot.quantity',
+            header: <div className="uppercase">{__('Quantity')}</div>,
         },
         {
             accessorKey: 'price',

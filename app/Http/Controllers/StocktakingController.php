@@ -205,12 +205,12 @@ class StocktakingController extends Controller
 
         $rows[] = [];
         $rows[] = [
-            __('Code'),
-            __('Batch'),
-            __('Quantity'),
-            __('Description'),
             __('Group'),
+            __('Code'),
+            __('Description'),
+            __('Batch'),
             __('Expiry Date'),
+            __('Quantity'),
             __('Price'),
             __('Price') . ' x ' . __('Quantity'),
             __('Location'),
@@ -220,12 +220,12 @@ class StocktakingController extends Controller
 
         $stocktaking->products()->get()->each(function ($product) use (&$rows, &$totalPrice) {
             $rows[] = [
-                $product['code'],
-                $product['batch'] ? $product['pivot']['batch'] : '',
-                $product['pivot']['quantity'],
-                $product['description'],
                 $product['group'] ? $product['group']['name'] : '',
+                $product['code'],
+                $product['description'],
+                $product['batch'] ? $product['pivot']['batch'] : '',
                 $product['expiry_date'] ? $product['pivot']['expiry_date'] : '',
+                $product['pivot']['quantity'],
                 $product['price'],
                 $product['price'] * $product['pivot']['quantity'],
                 $product['pivot']['location']['aisle']['code'] . '-' . $product['pivot']['location']['column'] . '-' . $product['pivot']['location']['row'],
