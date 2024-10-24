@@ -28,7 +28,7 @@ export default function Edit({ auth, product, groups }) {
         currency: product.currency,
         price: product.price,
         batch: product.batch,
-        enabled: product.enabled,
+        expiry_date: product.expiry_date,
     });
 
     const submit = (e) => {
@@ -104,7 +104,7 @@ export default function Edit({ auth, product, groups }) {
                                 <InputError message={__(errors.group_id)} className="mt-2" />
                             </div>
 
-                            <div className="col-span-3 lg:col-span-2">
+                            <div className="col-span-3 lg:col-span-1">
                                 <Label htmlFor="unit">{__('Unit')}</Label>
 
                                 <Input
@@ -117,7 +117,7 @@ export default function Edit({ auth, product, groups }) {
                                 <InputError message={__(errors.unit)} className="mt-2" />
                             </div>
 
-                            <div className="col-span-3 lg:col-span-2">
+                            <div className="col-span-3 lg:col-span-1">
                                 <Label htmlFor="currency">{__('Currency')}</Label>
 
                                 <Input
@@ -158,7 +158,7 @@ export default function Edit({ auth, product, groups }) {
                                 <InputError className="mt-2" message={__(errors.price)} />
                             </div>
 
-                            <div className="col-span-6 lg:col-span-1">
+                            <div className="col-span-5 lg:col-span-1">
                                 <Label htmlFor="batch">{__('Batch')}</Label>
 
                                 <Switch
@@ -171,17 +171,17 @@ export default function Edit({ auth, product, groups }) {
                                 <InputError message={__(errors.batch)} className="mt-2" />
                             </div>
 
-                            <div className="col-span-6 lg:col-span-1">
-                                <Label htmlFor="enabled">{__('Enabled')}</Label>
+                            <div className="col-span-7 lg:col-span-3">
+                                <Label htmlFor="expiry_date">{__('Expiry Date')}</Label>
 
                                 <Switch
-                                    id="enabled"
+                                    id="expiry_date"
                                     className="mt-3 block"
-                                    checked={data.enabled}
-                                    onCheckedChange={(v) => setData('enabled', v)}
+                                    checked={data.expiry_date}
+                                    onCheckedChange={(v) => setData('expiry_date', v)}
                                 />
 
-                                <InputError message={__(errors.enabled)} className="mt-2" />
+                                <InputError message={__(errors.expiry_date)} className="mt-2" />
                             </div>
                         </div>
 

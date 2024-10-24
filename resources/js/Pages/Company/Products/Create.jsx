@@ -30,7 +30,7 @@ export default function Create({ auth, groups }) {
                 currency: '',
                 price: '',
                 batch: true,
-                enabled: true,
+                expiry_date: true,
             },
         ],
     });
@@ -55,7 +55,7 @@ export default function Create({ auth, groups }) {
                 currency: '',
                 price: '',
                 batch: true,
-                enabled: true,
+                expiry_date: true,
             },
         ]);
     };
@@ -146,7 +146,7 @@ export default function Create({ auth, groups }) {
                                         <InputError message={__(errors[`products.${i}.group_id`])} className="mt-2" />
                                     </div>
 
-                                    <div className="col-span-3 lg:col-span-2">
+                                    <div className="col-span-3 lg:col-span-1">
                                         <Label htmlFor="unit">{__('Unit')}</Label>
 
                                         <Input
@@ -159,7 +159,7 @@ export default function Create({ auth, groups }) {
                                         <InputError message={__(errors[`products.${i}.unit`])} className="mt-2" />
                                     </div>
 
-                                    <div className="col-span-3 lg:col-span-2">
+                                    <div className="col-span-3 lg:col-span-1">
                                         <Label htmlFor="currency">{__('Currency')}</Label>
 
                                         <Input
@@ -200,7 +200,7 @@ export default function Create({ auth, groups }) {
                                         <InputError className="mt-2" message={__(errors.price)} />
                                     </div>
 
-                                    <div className="col-span-6 lg:col-span-1">
+                                    <div className="col-span-5 lg:col-span-1">
                                         <Label htmlFor="batch">{__('Batch')}</Label>
 
                                         <Switch
@@ -213,17 +213,20 @@ export default function Create({ auth, groups }) {
                                         <InputError message={__(errors[`products.${i}.batch`])} className="mt-2" />
                                     </div>
 
-                                    <div className="col-span-6 lg:col-span-1">
-                                        <Label htmlFor="enabled">{__('Enabled')}</Label>
+                                    <div className="col-span-7 lg:col-span-3">
+                                        <Label htmlFor="expiry_date">{__('Expiry Date')}</Label>
 
                                         <Switch
-                                            id="enabled"
+                                            id="expiry_date"
                                             className="mt-3 block"
-                                            checked={prdct.enabled}
-                                            onCheckedChange={(v) => handleChange(i, 'enabled', v)}
+                                            checked={prdct.expiry_date}
+                                            onCheckedChange={(v) => handleChange(i, 'expiry_date', v)}
                                         />
 
-                                        <InputError message={__(errors[`products.${i}.enabled`])} className="mt-2" />
+                                        <InputError
+                                            message={__(errors[`products.${i}.expiry_date`])}
+                                            className="mt-2"
+                                        />
                                     </div>
                                 </div>
 
