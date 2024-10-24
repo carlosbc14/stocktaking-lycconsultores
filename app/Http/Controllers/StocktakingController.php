@@ -214,6 +214,7 @@ class StocktakingController extends Controller
             __('Unit Price'),
             __('Total'),
             __('Location'),
+            __('Aisle Group'),
         ];
 
         $totalPrice = 0;
@@ -229,6 +230,7 @@ class StocktakingController extends Controller
                 $product['price'],
                 $product['price'] * $product['pivot']['quantity'],
                 $product['pivot']['location']['aisle']['code'] . '-' . $product['pivot']['location']['column'] . '-' . $product['pivot']['location']['row'],
+                $product['pivot']['location']['aisle']['group'] ? $product['pivot']['location']['aisle']['group']['name'] : '',
             ];
 
             $totalPrice += $product['price'] * $product['pivot']['quantity'];
