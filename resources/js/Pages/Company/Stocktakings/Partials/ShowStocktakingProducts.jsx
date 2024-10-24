@@ -11,7 +11,7 @@ export default function ShowStocktakingProducts({
     canCreate = false,
     className = '',
 }) {
-    const { locale, __ } = useTraslations();
+    const { __ } = useTraslations();
 
     const columns = [
         {
