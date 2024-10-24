@@ -211,8 +211,8 @@ class StocktakingController extends Controller
             __('Batch'),
             __('Expiry Date'),
             __('Quantity'),
-            __('Price'),
-            __('Price') . ' x ' . __('Quantity'),
+            __('Unit Price'),
+            __('Total'),
             __('Location'),
         ];
 
