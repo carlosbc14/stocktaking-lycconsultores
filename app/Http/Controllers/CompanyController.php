@@ -32,11 +32,18 @@ class CompanyController extends Controller
             'rut' => Rut::parse($request->rut)->quiet()->format(),
         ]);
 
+        if ($request->legal_representative_rut) $request->merge([
+            'legal_representative_rut' => Rut::parse($request->legal_representative_rut)->quiet()->format(),
+        ]);
+
         $validated = $request->validate([
             'rut' => 'required|cl_rut|unique:' . Company::class,
             'name' => 'required|string|max:255',
             'business_sector' => 'required|string|max:255',
             'address' => 'required|string|max:255',
+            'legal_representative_rut' => 'nullable|cl_rut',
+            'legal_representative_name' => 'nullable|string|max:255',
+            'legal_representative_position' => 'nullable|string|max:255',
         ]);
 
         $company = Company::create($validated);
@@ -93,11 +100,18 @@ class CompanyController extends Controller
             'rut' => Rut::parse($request->rut)->quiet()->format(),
         ]);
 
+        if ($request->legal_representative_rut) $request->merge([
+            'legal_representative_rut' => Rut::parse($request->legal_representative_rut)->quiet()->format(),
+        ]);
+
         $validated = $request->validate([
             'rut' => 'cl_rut|unique:companies,rut,' . $company->id,
             'name' => 'string|max:255',
             'business_sector' => 'string|max:255',
             'address' => 'string|max:255',
+            'legal_representative_rut' => 'nullable|cl_rut',
+            'legal_representative_name' => 'nullable|string|max:255',
+            'legal_representative_position' => 'nullable|string|max:255',
         ]);
 
         $company->update($validated);

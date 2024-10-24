@@ -15,6 +15,9 @@ class Company extends Model
         'business_sector',
         'address',
         'enabled',
+        'legal_representative_rut',
+        'legal_representative_name',
+        'legal_representative_position',
     ];
 
     public function users()

@@ -13,6 +13,9 @@ export default function Create({ auth }) {
         name: '',
         business_sector: '',
         address: '',
+        legal_representative_rut: '',
+        legal_representative_name: '',
+        legal_representative_position: '',
     });
 
     const submit = (e) => {
@@ -97,6 +100,45 @@ export default function Create({ auth }) {
                             />
 
                             <InputError className="mt-2" message={__(errors.address)} />
+                        </div>
+
+                        <div>
+                            <Label htmlFor="legal_representative_rut">{__('Legal Representative RUT')}</Label>
+
+                            <Input
+                                id="legal_representative_rut"
+                                className="mt-1 block w-full"
+                                value={data.legal_representative_rut}
+                                onChange={(e) => setData('legal_representative_rut', e.target.value)}
+                            />
+
+                            <InputError className="mt-2" message={__(errors.legal_representative_rut)} />
+                        </div>
+
+                        <div>
+                            <Label htmlFor="legal_representative_name">{__('Legal Representative Name')}</Label>
+
+                            <Input
+                                id="legal_representative_name"
+                                className="mt-1 block w-full"
+                                value={data.legal_representative_name}
+                                onChange={(e) => setData('legal_representative_name', e.target.value)}
+                            />
+
+                            <InputError className="mt-2" message={__(errors.legal_representative_name)} />
+                        </div>
+
+                        <div>
+                            <Label htmlFor="legal_representative_position">{__('Legal Representative Position')}</Label>
+
+                            <Input
+                                id="legal_representative_position"
+                                className="mt-1 block w-full"
+                                value={data.legal_representative_position}
+                                onChange={(e) => setData('legal_representative_position', e.target.value)}
+                            />
+
+                            <InputError className="mt-2" message={__(errors.legal_representative_position)} />
                         </div>
 
                         <Button disabled={processing}>{__('Save')}</Button>

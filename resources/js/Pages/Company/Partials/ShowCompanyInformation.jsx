@@ -48,6 +48,39 @@ export default function ShowCompanyInformation({ company, canEdit = false, class
 
                     <Input id="address" className="mt-1 block w-full" value={company.address} disabled />
                 </div>
+
+                <div>
+                    <Label htmlFor="legal_representative_rut">{__('Legal Representative RUT')}</Label>
+
+                    <Input
+                        id="legal_representative_rut"
+                        className="mt-1 block w-full"
+                        value={company.legal_representative_rut}
+                        disabled
+                    />
+                </div>
+
+                <div>
+                    <Label htmlFor="legal_representative_name">{__('Legal Representative Name')}</Label>
+
+                    <Input
+                        id="legal_representative_name"
+                        className="mt-1 block w-full"
+                        value={company.legal_representative_name}
+                        disabled
+                    />
+                </div>
+
+                <div>
+                    <Label htmlFor="legal_representative_position">{__('Legal Representative Position')}</Label>
+
+                    <Input
+                        id="legal_representative_position"
+                        className="mt-1 block w-full"
+                        value={company.legal_representative_position}
+                        disabled
+                    />
+                </div>
             </div>
         </section>
     );
