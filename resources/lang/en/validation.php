@@ -18,6 +18,7 @@ return [
         'products.*.currency'      => 'currency',
         'products.*.description'   => 'description',
         'products.*.enabled'       => 'enabled',
+        'products.*.expiry_date'   => 'expiry date',
         'products.*.group_id'      => 'group',
         'products.*.origin'        => 'origin',
         'products.*.price'         => 'price',

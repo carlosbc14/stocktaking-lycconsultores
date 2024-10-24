@@ -44,8 +44,7 @@ export default function ShowStocktakingLocationProducts({
         {
             accessorKey: 'pivot.expiry_date',
             header: <div className="uppercase">{__('Expiry Date')}</div>,
-            cell: ({ row }) =>
-                row.original.pivot.expiry_date ? new Date(row.original.pivot.expiry_date).toLocaleString(locale) : '-',
+            cell: ({ row }) => row.original.pivot.expiry_date ?? '-',
         },
     ];
 

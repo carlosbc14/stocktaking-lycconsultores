@@ -25,7 +25,9 @@ export default function Run({ auth, stocktaking, location }) {
     const [scannedProduct, setScannedProduct] = useState();
     const [scanningError, setScanningError] = useState('');
     const [showBatchModal, setShowBatchModal] = useState(false);
+    const [showExpiryDateModal, setShowExpiryDateModal] = useState(false);
     const [scannedBatch, setScannedBatch] = useState('');
+    const [scannedExpiryDate, setScannedExpiryDate] = useState('');
     const { data, setData, post, errors, processing } = useForm({
         products: [
             {
@@ -33,6 +35,7 @@ export default function Run({ auth, stocktaking, location }) {
                 code: '',
                 description: '',
                 batch: '',
+                expiry_date: '',
                 quantity: 1,
             },
         ],
@@ -44,13 +47,25 @@ export default function Run({ auth, stocktaking, location }) {
         return response.data.product;
     };
 
-    const handleScanBatch = (e) => {
+    const handleScanExpiryDate = (e) => {
         e.preventDefault();
 
         addProduct(scannedProduct, data.products.length - 1);
 
-        setShowBatchModal(false);
+        setShowExpiryDateModal(false);
+        setScannedExpiryDate('');
         setScannedBatch('');
+    };
+
+    const handleScanBatch = (e) => {
+        e.preventDefault();
+
+        setShowBatchModal(false);
+
+        if (scannedProduct.expiry_date) return setShowExpiryDateModal(true);
+
+        setScannedBatch('');
+        addProduct(scannedProduct, data.products.length - 1);
     };
 
     const handleAddProduct = async (e) => {
@@ -79,6 +94,8 @@ export default function Run({ auth, stocktaking, location }) {
 
             if (product.batch) return setShowBatchModal(true);
 
+            if (product.expiry_date) return setShowExpiryDateModal(true);
+
             addProduct(product, productIndex);
         } catch (error) {
             if (error.response.status === 404) {
@@ -96,14 +113,20 @@ export default function Run({ auth, stocktaking, location }) {
     };
 
     const addProduct = (product, productIndex) => {
-        const products = [...data.products];
-        let existingProductIndex = -1;
+        let scannedExpiryDateFormatted = scannedExpiryDate;
+        try {
+            scannedExpiryDateFormatted = new Date(scannedExpiryDate).toISOString().split('T')[0];
+        } catch (error) {}
 
-        if (!product.batch) existingProductIndex = products.slice(0, -1).findIndex((p) => p.code === product.code);
-        else
-            existingProductIndex = products
-                .slice(0, -1)
-                .findIndex((p) => p.code === product.code && p.batch === scannedBatch);
+        const products = [...data.products];
+        const existingProductIndex = products
+            .slice(0, -1)
+            .findIndex(
+                (p) =>
+                    p.code === product.code &&
+                    (!product.batch || p.batch === scannedBatch) &&
+                    (!product.expiry_date || p.expiry_date === scannedExpiryDateFormatted)
+            );
 
         if (existingProductIndex !== -1) {
             products[existingProductIndex].quantity += 1;
@@ -114,12 +137,14 @@ export default function Run({ auth, stocktaking, location }) {
             products[productIndex].id = product.id;
             products[productIndex].description = product.description;
             if (product.batch) products[productIndex].batch = scannedBatch;
+            if (product.expiry_date) products[productIndex].expiry_date = scannedExpiryDateFormatted;
 
             products.push({
                 id: '',
                 code: '',
                 description: '',
                 batch: '',
+                expiry_date: '',
                 quantity: 1,
             });
         }
@@ -178,7 +203,13 @@ export default function Run({ auth, stocktaking, location }) {
                         {data.products.map((prdct, i) => (
                             <div key={i}>
                                 <div className="grid grid-cols-12 gap-4">
-                                    <div className="col-span-12 lg:col-span-4">
+                                    <div
+                                        className={cn(
+                                            'col-span-12',
+                                            prdct.batch || prdct.expiry_date ? 'lg:col-span-3' : 'lg:col-span-4',
+                                            prdct.batch && prdct.expiry_date ? 'lg:col-span-2' : ''
+                                        )}
+                                    >
                                         <Label htmlFor="code">{__('Code')}</Label>
 
                                         <Input
@@ -200,7 +231,12 @@ export default function Run({ auth, stocktaking, location }) {
                                         />
                                     </div>
 
-                                    <div className="col-span-12 lg:col-span-6">
+                                    <div
+                                        className={cn(
+                                            'col-span-12',
+                                            prdct.batch || prdct.expiry_date ? 'lg:col-span-5' : 'lg:col-span-6'
+                                        )}
+                                    >
                                         <Label htmlFor="description">{__('Description')}</Label>
 
                                         <Input
@@ -211,7 +247,13 @@ export default function Run({ auth, stocktaking, location }) {
                                         />
                                     </div>
 
-                                    <div className="col-span-12 lg:col-span-2">
+                                    <div
+                                        className={cn(
+                                            'col-span-12',
+                                            prdct.batch || prdct.expiry_date ? 'lg:col-span-1' : 'lg:col-span-2',
+                                            prdct.batch && prdct.expiry_date ? 'lg:col-span-1' : ''
+                                        )}
+                                    >
                                         <Label htmlFor="quantity">{__('Quantity')}</Label>
 
                                         <Input
@@ -226,12 +268,40 @@ export default function Run({ auth, stocktaking, location }) {
                                         <InputError message={__(errors[`products.${i}.quantity`])} className="mt-2" />
                                     </div>
 
-                                    <div className={cn('col-span-12', prdct.batch ? '' : 'hidden')}>
+                                    <div
+                                        className={cn(
+                                            'col-span-12',
+                                            prdct.expiry_date ? 'lg:col-span-2' : 'lg:col-span-3',
+                                            prdct.batch ? '' : 'hidden'
+                                        )}
+                                    >
                                         <Label htmlFor="batch">{__('Batch')}</Label>
 
                                         <Input id="batch" value={prdct.batch} className="mt-1 block w-full" disabled />
 
                                         <InputError message={__(errors[`products.${i}.batch`])} className="mt-2" />
+                                    </div>
+
+                                    <div
+                                        className={cn(
+                                            'col-span-12',
+                                            prdct.batch ? 'lg:col-span-2' : 'lg:col-span-3',
+                                            prdct.expiry_date ? '' : 'hidden'
+                                        )}
+                                    >
+                                        <Label htmlFor="expiry_date">{__('Expiry Date')}</Label>
+
+                                        <Input
+                                            id="expiry_date"
+                                            value={prdct.expiry_date}
+                                            className="mt-1 block w-full"
+                                            disabled
+                                        />
+
+                                        <InputError
+                                            message={__(errors[`products.${i}.expiry_date`])}
+                                            className="mt-2"
+                                        />
                                     </div>
                                 </div>
 
@@ -260,6 +330,7 @@ export default function Run({ auth, stocktaking, location }) {
                     </form>
                 </section>
             </div>
+
             <Dialog open={showBatchModal} onClose={() => setShowBatchModal(false)}>
                 <DialogContent>
                     <form className="grid gap-4" onSubmit={handleScanBatch}>
@@ -274,10 +345,39 @@ export default function Run({ auth, stocktaking, location }) {
                             value={scannedBatch}
                             className="mt-1 block w-full"
                             onChange={(e) => setScannedBatch(e.target.value)}
+                            required
                         />
 
                         <DialogFooter>
                             <Button type="button" variant="outline" onClick={() => setShowBatchModal(false)}>
+                                {__('Cancel')}
+                            </Button>
+
+                            <Button type="submit">{__('Save')}</Button>
+                        </DialogFooter>
+                    </form>
+                </DialogContent>
+            </Dialog>
+
+            <Dialog open={showExpiryDateModal} onClose={() => setShowExpiryDateModal(false)}>
+                <DialogContent>
+                    <form className="grid gap-4" onSubmit={handleScanExpiryDate}>
+                        <DialogHeader>
+                            <DialogTitle>{__('Complete the requested products information.')}</DialogTitle>
+
+                            <DialogDescription>{__('Enter the product expiry date.')}</DialogDescription>
+                        </DialogHeader>
+
+                        <Input
+                            id="expiry_date"
+                            value={scannedExpiryDate}
+                            className="mt-1 block w-full"
+                            onChange={(e) => setScannedExpiryDate(e.target.value)}
+                            required
+                        />
+
+                        <DialogFooter>
+                            <Button type="button" variant="outline" onClick={() => setShowExpiryDateModal(false)}>
                                 {__('Cancel')}
                             </Button>
 

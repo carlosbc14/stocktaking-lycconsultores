@@ -109,12 +109,14 @@ class StocktakingController extends Controller
                 return $query->where('company_id', $stocktaking->company_id);
             })],
             'products.*.batch' => 'nullable|string|max:255',
+            'products.*.expiry_date' => 'nullable|date_format:Y-m-d|max:255',
             'products.*.quantity' => 'required|numeric|min:1',
         ]);
 
         foreach ($validated['products'] as $product) {
             $stocktaking->products()->attach($product['id'], [
                 'batch' => $product['batch'] ?? null,
+                'expiry_date' => $product['expiry_date'] ?? null,
                 'quantity' => $product['quantity'],
                 'location_id' => $location->id,
             ]);

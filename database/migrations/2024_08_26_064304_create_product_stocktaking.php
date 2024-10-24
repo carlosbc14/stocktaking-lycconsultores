@@ -25,11 +25,11 @@ return new class extends Migration
                 ->constrained('locations')
                 ->cascadeOnUpdate()
                 ->cascadeOnDelete();
-            $table->string('batch')->nullable();
+            $table->string('batch', 64)->nullable();
             $table->date('expiry_date')->nullable();
             $table->integer('quantity')->default(1);
             $table->timestamps();
-            $table->unique(['product_id', 'stocktaking_id', 'location_id', 'batch'], 'product_stocktaking_unique');
+            $table->unique(['product_id', 'stocktaking_id', 'location_id', 'batch', 'expiry_date'], 'product_stocktaking_unique');
         });
     }
 

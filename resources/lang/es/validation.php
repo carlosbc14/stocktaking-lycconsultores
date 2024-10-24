@@ -243,6 +243,7 @@ return [
         'products.*.currency'      => 'moneda',
         'products.*.description'   => 'descripción',
         'products.*.enabled'       => 'habilitado',
+        'products.*.expiry_date'   => 'fecha de vencimiento',
         'products.*.group_id'      => 'grupo',
         'products.*.origin'        => 'procedencia',
         'products.*.price'         => 'precio',
