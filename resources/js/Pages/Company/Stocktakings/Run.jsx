@@ -16,10 +16,11 @@ import {
     useToast,
 } from '@/Components/ui';
 import { InputError } from '@/Components';
-import { cn } from '@/lib/utils';
+import { cn, getDateFormatPattern } from '@/lib/utils';
+import moment from 'moment/moment';
 
 export default function Run({ auth, stocktaking, location }) {
-    const { __ } = useTraslations();
+    const { locale, __ } = useTraslations();
     const { toast } = useToast();
 
     const [scannedProduct, setScannedProduct] = useState();
@@ -28,6 +29,7 @@ export default function Run({ auth, stocktaking, location }) {
     const [showExpiryDateModal, setShowExpiryDateModal] = useState(false);
     const [scannedBatch, setScannedBatch] = useState('');
     const [scannedExpiryDate, setScannedExpiryDate] = useState('');
+    const [failedExpiryDateScan, setFailedExpiryDateScan] = useState(false);
     const { data, setData, post, errors, processing } = useForm({
         products: [
             {
@@ -49,6 +51,13 @@ export default function Run({ auth, stocktaking, location }) {
 
     const handleScanExpiryDate = (e) => {
         e.preventDefault();
+
+        let scannedExpiryDateFormatted = moment(scannedExpiryDate, getDateFormatPattern(locale)).format('YYYY-MM-DD');
+
+        if (scannedExpiryDateFormatted === 'Invalid date')
+            scannedExpiryDateFormatted = moment(scannedExpiryDate, 'YYYY-MM-DD').format('YYYY-MM-DD');
+
+        if (scannedExpiryDateFormatted === 'Invalid date') return setFailedExpiryDateScan(true);
 
         addProduct(scannedProduct, data.products.length - 1);
 
@@ -91,6 +100,7 @@ export default function Run({ auth, stocktaking, location }) {
 
             setScannedProduct(product);
             setScanningError('');
+            setFailedExpiryDateScan(false);
 
             if (product.batch) return setShowBatchModal(true);
 
@@ -113,10 +123,10 @@ export default function Run({ auth, stocktaking, location }) {
     };
 
     const addProduct = (product, productIndex) => {
-        let scannedExpiryDateFormatted = scannedExpiryDate;
-        try {
-            scannedExpiryDateFormatted = new Date(scannedExpiryDate).toISOString().split('T')[0];
-        } catch (error) {}
+        let scannedExpiryDateFormatted = moment(scannedExpiryDate, getDateFormatPattern(locale)).format('YYYY-MM-DD');
+
+        if (scannedExpiryDateFormatted === 'Invalid date')
+            scannedExpiryDateFormatted = moment(scannedExpiryDate, 'YYYY-MM-DD').format('YYYY-MM-DD');
 
         const products = [...data.products];
         const existingProductIndex = products
@@ -375,6 +385,8 @@ export default function Run({ auth, stocktaking, location }) {
                             onChange={(e) => setScannedExpiryDate(e.target.value)}
                             required
                         />
+
+                        {failedExpiryDateScan && <InputError message={__('Invalid date')} className="mt-2" />}
 
                         <DialogFooter>
                             <Button type="button" variant="outline" onClick={() => setShowExpiryDateModal(false)}>

@@ -162,6 +162,7 @@
     "Insufficient Storage": "Espacio insuficiente",
     "Internal Server Error": "Error interno del servidor",
     "Introduction": "Introducción",
+    "Invalid date": "Fecha no válida",
     "Invalid JSON was returned from the route.": "Se devolvió un JSON no válido desde la ruta.",
     "Invalid SSL Certificate": "Certificado SSL no válido",
     "lead operator": "líder operador",
