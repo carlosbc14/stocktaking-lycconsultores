@@ -243,6 +243,7 @@ class StocktakingController extends Controller
         $formattedDate = str_replace('/', '-', $stocktaking->created_at->isoFormat('L'));
 
         $stocktakingInfo = [
+            __('Document Number') => $stocktaking->id,
             __('Warehouse') => $stocktaking->warehouse->name . ' (' . $stocktaking->warehouse->code . ')',
             __('Date') => $formattedDate,
             __('User') => $request->user()->name,
