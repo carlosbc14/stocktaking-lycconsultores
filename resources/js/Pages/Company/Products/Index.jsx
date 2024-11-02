@@ -25,7 +25,7 @@ import { ArrowUpDown, MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 
 export default function Index({ auth, products, failures }) {
-    const { __ } = useTraslations();
+    const { locale, __ } = useTraslations();
     const { toast } = useToast();
 
     const [filterBy, setFilterBy] = useState();
@@ -94,7 +94,7 @@ export default function Index({ auth, products, failures }) {
         {
             accessorKey: 'price',
             header: <div className="uppercase">{__('Price')}</div>,
-            cell: ({ row }) => row.original.price?.toLocaleString() ?? '-',
+            cell: ({ row }) => row.original.price?.toLocaleString(locale) ?? '-',
         },
         {
             accessorKey: 'batch',

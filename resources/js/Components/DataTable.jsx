@@ -30,7 +30,7 @@ export function DataTable({
     pageSize,
     currentPage,
 }) {
-    const { __ } = useTraslations();
+    const { locale, __ } = useTraslations();
 
     const [sorting, setSorting] = useState([]);
     const [columnFilters, setColumnFilters] = useState([]);
@@ -155,7 +155,7 @@ export function DataTable({
 
                     <span>{__('of')}</span>
 
-                    <span>{table.getPageCount().toLocaleString()}</span>
+                    <span>{table.getPageCount().toLocaleString(locale)}</span>
                 </div>
 
                 <div className="flex items-center space-x-2">

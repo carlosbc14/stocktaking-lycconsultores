@@ -12,7 +12,7 @@ export default function ShowStocktakingProducts({
     canCreate = false,
     className = '',
 }) {
-    const { __ } = useTraslations();
+    const { locale, __ } = useTraslations();
 
     const [filterBy, setFilterBy] = useState();
     const [filterValue, setFilterValue] = useState();
@@ -58,7 +58,10 @@ export default function ShowStocktakingProducts({
         {
             id: 'pivot.expiry_date',
             header: <div className="uppercase">{__('Expiry Date')}</div>,
-            cell: ({ row }) => row.original.pivot.expiry_date ?? '-',
+            cell: ({ row }) =>
+                row.original.pivot.expiry_date
+                    ? new Date(row.original.pivot.expiry_date + ',0:0').toLocaleDateString(locale)
+                    : '-',
         },
         {
             id: 'pivot.quantity',
@@ -68,13 +71,13 @@ export default function ShowStocktakingProducts({
         {
             accessorKey: 'price',
             header: <div className="uppercase">{__('Unit Price')}</div>,
-            cell: ({ row }) => row.original.price?.toLocaleString() ?? '-',
+            cell: ({ row }) => row.original.price?.toLocaleString(locale) ?? '-',
         },
         {
             accessorKey: 'total_price',
             header: <div className="uppercase">{__('Total')}</div>,
             cell: ({ row }) =>
-                row.original.price ? (row.original.price * row.original.pivot.quantity).toLocaleString() : '-',
+                row.original.price ? (row.original.price * row.original.pivot.quantity).toLocaleString(locale) : '-',
         },
         {
             accessorKey: 'location',
