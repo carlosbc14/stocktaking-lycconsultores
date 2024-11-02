@@ -13,7 +13,6 @@ export default function ShowStocktakingLocationProducts({
     className = '',
 }) {
     const { __ } = useTraslations();
-    console.log(products.data);
 
     const [filterBy, setFilterBy] = useState();
     const [filterValue, setFilterValue] = useState();
