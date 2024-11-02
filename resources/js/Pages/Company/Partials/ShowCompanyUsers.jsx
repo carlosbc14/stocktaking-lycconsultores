@@ -14,9 +14,10 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@/Components/ui';
-import { Link } from '@inertiajs/react';
+import { Link, router } from '@inertiajs/react';
 import { DataTable } from '@/Components';
 import { ArrowUpDown, MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
+import { useState } from 'react';
 
 export default function ShowCompanyUsers({
     users = [],
@@ -26,6 +27,13 @@ export default function ShowCompanyUsers({
     className = '',
 }) {
     const { __ } = useTraslations();
+
+    const [filterBy, setFilterBy] = useState();
+    const [filterValue, setFilterValue] = useState();
+    const [sortBy, setSortBy] = useState();
+    const [sortDirection, setSortDirection] = useState();
+    const [currentPage, setCurrentPage] = useState(users.current_page);
+    const [pageSize, setPageSize] = useState(users.per_page);
 
     const columns = [
         {
@@ -52,13 +60,8 @@ export default function ShowCompanyUsers({
             cell: ({ row }) => <div className="lowercase">{row.getValue('email')}</div>,
         },
         {
-            accessorKey: 'role.name',
-            header: ({ column }) => (
-                <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
-                    {__('Role')}
-                    <ArrowUpDown className="ml-2 h-4 w-4" />
-                </Button>
-            ),
+            id: 'role.name',
+            header: () => <div className="uppercase">{__('Role')}</div>,
             cell: ({ row }) => <div className="uppercase">{__(row.original.role.name.replace('_', ' '))}</div>,
         },
     ];
@@ -127,6 +130,58 @@ export default function ShowCompanyUsers({
         });
     }
 
+    const handleFilterChange = (field, value) => {
+        setFilterBy(field);
+        setFilterValue(value);
+
+        router.visit(
+            route('company.show', {
+                filterBy: field,
+                filterValue: value,
+                sortBy,
+                sortDirection,
+                page: currentPage,
+                perPage: pageSize,
+            }),
+            { preserveState: true }
+        );
+    };
+
+    const handleSortChange = (field, desc) => {
+        const direction = desc ? 'desc' : 'asc';
+        setSortBy(field);
+        setSortDirection(direction);
+
+        router.visit(
+            route('company.show', {
+                filterBy,
+                filterValue,
+                sortBy: field,
+                sortDirection: direction,
+                page: currentPage,
+                perPage: pageSize,
+            }),
+            { preserveState: true }
+        );
+    };
+
+    const handlePageChange = (page, perPage) => {
+        setCurrentPage(page);
+        setPageSize(perPage);
+
+        router.visit(
+            route('company.show', {
+                filterBy,
+                filterValue,
+                sortBy,
+                sortDirection,
+                page,
+                perPage,
+            }),
+            { preserveState: true }
+        );
+    };
+
     return (
         <section className={className}>
             <header>
@@ -141,7 +196,17 @@ export default function ShowCompanyUsers({
                 )}
             </header>
 
-            <DataTable data={users} columns={columns} filterBy="name" />
+            <DataTable
+                data={users.data}
+                columns={columns}
+                filterBy="name"
+                onFilterChange={handleFilterChange}
+                onSortChange={handleSortChange}
+                totalPages={users.last_page}
+                onPageChange={handlePageChange}
+                pageSize={pageSize}
+                currentPage={currentPage}
+            />
         </section>
     );
 }

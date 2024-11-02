@@ -6,6 +6,7 @@ use App\Models\Location;
 use App\Models\Product;
 use App\Models\ProductStocktaking;
 use App\Models\Stocktaking;
+use App\Traits\FilterAndSortTrait;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -15,6 +16,8 @@ use Spatie\SimpleExcel\SimpleExcelWriter;
 
 class StocktakingController extends Controller
 {
+    use FilterAndSortTrait;
+
     /**
      * Display a listing of the resource.
      */
@@ -22,8 +25,18 @@ class StocktakingController extends Controller
     {
         $this->authorize('viewAny', Stocktaking::class);
 
+        $perPage = $request->input('perPage', 10);
+
+        $query = $request->user()->company->stocktakings()->with(['user', 'warehouse']);
+
+        $query = $this->applyFilters($request, $query);
+        $query = $this->applySorting($request, $query);
+
+        /** @var \Illuminate\Pagination\LengthAwarePaginator $stocktakings */
+        $stocktakings = $query->paginate($perPage);
+
         return Inertia::render('Company/Stocktakings/Index', [
-            'stocktakings' => $request->user()->company->stocktakings()->with(['user', 'warehouse'])->get(),
+            'stocktakings' => $stocktakings->withQueryString(),
         ]);
     }
 
@@ -125,17 +138,41 @@ class StocktakingController extends Controller
         return redirect(route('stocktakings.selectLocation', $stocktaking->id));
     }
 
-    public function showLocation(Stocktaking $stocktaking, Location $location): Response
+    public function showLocation(Request $request, Stocktaking $stocktaking, Location $location): Response
     {
         $this->authorize('perform', [$stocktaking, $location]);
 
-        $location->load(['aisle', 'products' => function ($query) use ($stocktaking) {
-            $query->where('stocktaking_id', $stocktaking->id);
-        }]);
+        $perPage = $request->input('perPage', 10);
+
+        $query = Product::with('group')->join('product_stocktaking', 'products.id', '=', 'product_stocktaking.product_id')
+            ->where('product_stocktaking.stocktaking_id', $stocktaking->id)
+            ->where('product_stocktaking.location_id', $location->id)
+            ->select(
+                'products.*',
+                'product_stocktaking.batch as pivot_batch',
+                'product_stocktaking.expiry_date as pivot_expiry_date',
+                'product_stocktaking.quantity as pivot_quantity'
+            );
+
+        $query = $this->applyFilters($request, $query);
+        $query = $this->applySorting($request, $query);
+
+        /** @var \Illuminate\Pagination\LengthAwarePaginator $products */
+        $products = $query->paginate($perPage);
+        $products->transform(function ($product) {
+            $product->pivot = [
+                'batch' => $product->pivot_batch,
+                'expiry_date' => $product->pivot_expiry_date,
+                'quantity' => $product->pivot_quantity,
+            ];
+
+            return $product->makeHidden(['pivot_batch', 'pivot_expiry_date', 'pivot_quantity']);
+        });
 
         return Inertia::render('Company/Stocktakings/ShowLocation', [
             'stocktaking' => $stocktaking,
-            'location' => $location,
+            'location' => $location->load('aisle'),
+            'products' => $products->withQueryString(),
         ]);
     }
 
@@ -170,17 +207,27 @@ class StocktakingController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Stocktaking $stocktaking): Response
+    public function show(Request $request, Stocktaking $stocktaking): Response
     {
         $this->authorize('view', $stocktaking);
 
-        $stocktaking->load(['warehouse', 'products.group']);
-        $stocktaking->products->each(function ($product) {
+        $perPage = $request->input('perPage', 10);
+
+        $query = $stocktaking->products()->with('group');
+
+        $query = $this->applyFilters($request, $query);
+        $query = $this->applySorting($request, $query);
+
+        /** @var \Illuminate\Pagination\LengthAwarePaginator $products */
+        $products = $query->paginate($perPage);
+
+        $products->each(function ($product) {
             $product->pivot->load('location.aisle');
         });
 
         return Inertia::render('Company/Stocktakings/Show', [
-            'stocktaking' => $stocktaking,
+            'stocktaking' => $stocktaking->load('warehouse'),
+            'products' => $products->withQueryString(),
         ]);
     }
 

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Group;
+use App\Traits\FilterAndSortTrait;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -12,6 +13,8 @@ use Inertia\Response;
 
 class GroupController extends Controller
 {
+    use FilterAndSortTrait;
+
     private function getAllGroupIds(Group $group): Collection
     {
         $group_ids = collect([$group->id]);
@@ -30,8 +33,18 @@ class GroupController extends Controller
     {
         $this->authorize('viewAny', Group::class);
 
+        $perPage = $request->input('perPage', 10);
+
+        $query = $request->user()->company->groups()->with('parentGroup');
+
+        $query = $this->applyFilters($request, $query);
+        $query = $this->applySorting($request, $query);
+
+        /** @var \Illuminate\Pagination\LengthAwarePaginator $groups */
+        $groups = $query->paginate($perPage);
+
         return Inertia::render('Company/Groups/Index', [
-            'groups' => $request->user()->company->groups()->with('parentGroup')->get(),
+            'groups' => $groups->withQueryString(),
         ]);
     }
 

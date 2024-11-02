@@ -3,7 +3,7 @@ import ShowStocktakingProducts from './Partials/ShowStocktakingProducts';
 import ShowStocktakingInformation from './Partials/ShowStocktakingInformation';
 import { useTraslations } from '@/Contexts/TranslationsContext';
 
-export default function Show({ auth, stocktaking }) {
+export default function Show({ auth, stocktaking, products }) {
     const { __ } = useTraslations();
 
     return (
@@ -32,7 +32,7 @@ export default function Show({ auth, stocktaking }) {
                             !stocktaking.finished_at
                         }
                         stocktakingId={stocktaking.id}
-                        products={stocktaking.products}
+                        products={products}
                     />
                 </div>
             </div>

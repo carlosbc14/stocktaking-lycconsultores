@@ -16,12 +16,20 @@ import {
     DropdownMenuTrigger,
     buttonVariants,
 } from '@/Components/ui';
-import { Link } from '@inertiajs/react';
+import { Link, router } from '@inertiajs/react';
 import { ArrowUpDown, MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
 import { DataTable } from '@/Components';
+import { useState } from 'react';
 
 export default function Index({ auth, stocktakings }) {
     const { locale, __ } = useTraslations();
+
+    const [filterBy, setFilterBy] = useState();
+    const [filterValue, setFilterValue] = useState();
+    const [sortBy, setSortBy] = useState();
+    const [sortDirection, setSortDirection] = useState();
+    const [currentPage, setCurrentPage] = useState(stocktakings.current_page);
+    const [pageSize, setPageSize] = useState(stocktakings.per_page);
 
     const canCreate = auth.user.permissions.some((per) => per.name === 'write stocktakings');
     const canEdit = auth.user.permissions.some((per) => per.name === 'edit stocktakings');
@@ -45,7 +53,7 @@ export default function Index({ auth, stocktakings }) {
             },
         },
         {
-            accessorKey: 'warehouse.name',
+            id: 'warehouse.name',
             header: ({ column }) => (
                 <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
                     {__('Warehouse')}
@@ -65,7 +73,7 @@ export default function Index({ auth, stocktakings }) {
             cell: ({ row }) => <div>{new Date(row.getValue('created_at')).toLocaleString(locale)}</div>,
         },
         {
-            accessorKey: 'user.name',
+            id: 'user.name',
             header: ({ column }) => (
                 <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
                     {__('operator')}
@@ -148,6 +156,58 @@ export default function Index({ auth, stocktakings }) {
         });
     }
 
+    const handleFilterChange = (field, value) => {
+        setFilterBy(field);
+        setFilterValue(value);
+
+        router.visit(
+            route('stocktakings.index', {
+                filterBy: field,
+                filterValue: value,
+                sortBy,
+                sortDirection,
+                page: currentPage,
+                perPage: pageSize,
+            }),
+            { preserveState: true }
+        );
+    };
+
+    const handleSortChange = (field, desc) => {
+        const direction = desc ? 'desc' : 'asc';
+        setSortBy(field);
+        setSortDirection(direction);
+
+        router.visit(
+            route('stocktakings.index', {
+                filterBy,
+                filterValue,
+                sortBy: field,
+                sortDirection: direction,
+                page: currentPage,
+                perPage: pageSize,
+            }),
+            { preserveState: true }
+        );
+    };
+
+    const handlePageChange = (page, perPage) => {
+        setCurrentPage(page);
+        setPageSize(perPage);
+
+        router.visit(
+            route('stocktakings.index', {
+                filterBy,
+                filterValue,
+                sortBy,
+                sortDirection,
+                page,
+                perPage,
+            }),
+            { preserveState: true }
+        );
+    };
+
     return (
         <AuthenticatedLayout user={auth.user} title={__('Stocktakings')}>
             <div className="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
@@ -159,7 +219,17 @@ export default function Index({ auth, stocktakings }) {
                     </div>
                 )}
 
-                <DataTable data={stocktakings} columns={columns} filterBy="id" />
+                <DataTable
+                    data={stocktakings.data}
+                    columns={columns}
+                    filterBy="id"
+                    onFilterChange={handleFilterChange}
+                    onSortChange={handleSortChange}
+                    totalPages={stocktakings.last_page}
+                    onPageChange={handlePageChange}
+                    pageSize={pageSize}
+                    currentPage={currentPage}
+                />
             </div>
         </AuthenticatedLayout>
     );

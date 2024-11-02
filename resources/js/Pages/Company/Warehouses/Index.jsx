@@ -15,12 +15,20 @@ import {
     DropdownMenuTrigger,
     buttonVariants,
 } from '@/Components/ui';
-import { Link } from '@inertiajs/react';
+import { Link, router } from '@inertiajs/react';
 import { ArrowUpDown, MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
 import { DataTable } from '@/Components';
+import { useState } from 'react';
 
 export default function Index({ auth, warehouses }) {
     const { __ } = useTraslations();
+
+    const [filterBy, setFilterBy] = useState();
+    const [filterValue, setFilterValue] = useState();
+    const [sortBy, setSortBy] = useState();
+    const [sortDirection, setSortDirection] = useState();
+    const [currentPage, setCurrentPage] = useState(warehouses.current_page);
+    const [pageSize, setPageSize] = useState(warehouses.per_page);
 
     const canCreate = auth.user.permissions.some((per) => per.name === 'write warehouses');
     const canEdit = auth.user.permissions.some((per) => per.name === 'edit warehouses');
@@ -128,6 +136,58 @@ export default function Index({ auth, warehouses }) {
         });
     }
 
+    const handleFilterChange = (field, value) => {
+        setFilterBy(field);
+        setFilterValue(value);
+
+        router.visit(
+            route('warehouses.index', {
+                filterBy: field,
+                filterValue: value,
+                sortBy,
+                sortDirection,
+                page: currentPage,
+                perPage: pageSize,
+            }),
+            { preserveState: true }
+        );
+    };
+
+    const handleSortChange = (field, desc) => {
+        const direction = desc ? 'desc' : 'asc';
+        setSortBy(field);
+        setSortDirection(direction);
+
+        router.visit(
+            route('warehouses.index', {
+                filterBy,
+                filterValue,
+                sortBy: field,
+                sortDirection: direction,
+                page: currentPage,
+                perPage: pageSize,
+            }),
+            { preserveState: true }
+        );
+    };
+
+    const handlePageChange = (page, perPage) => {
+        setCurrentPage(page);
+        setPageSize(perPage);
+
+        router.visit(
+            route('warehouses.index', {
+                filterBy,
+                filterValue,
+                sortBy,
+                sortDirection,
+                page,
+                perPage,
+            }),
+            { preserveState: true }
+        );
+    };
+
     return (
         <AuthenticatedLayout user={auth.user} title={__('Warehouses')}>
             <div className="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
@@ -139,7 +199,17 @@ export default function Index({ auth, warehouses }) {
                     </div>
                 )}
 
-                <DataTable data={warehouses} columns={columns} filterBy="name" />
+                <DataTable
+                    data={warehouses.data}
+                    columns={columns}
+                    filterBy="name"
+                    onFilterChange={handleFilterChange}
+                    onSortChange={handleSortChange}
+                    totalPages={warehouses.last_page}
+                    onPageChange={handlePageChange}
+                    pageSize={pageSize}
+                    currentPage={currentPage}
+                />
             </div>
         </AuthenticatedLayout>
     );

@@ -19,7 +19,7 @@ import {
     Label,
     Switch,
 } from '@/Components/ui';
-import { Link, useForm } from '@inertiajs/react';
+import { Link, router, useForm } from '@inertiajs/react';
 import { DataTable, InputError } from '@/Components';
 import { ArrowUpDown, MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
 import { useState } from 'react';
@@ -28,6 +28,12 @@ export default function Index({ auth, products, failures }) {
     const { __ } = useTraslations();
     const { toast } = useToast();
 
+    const [filterBy, setFilterBy] = useState();
+    const [filterValue, setFilterValue] = useState();
+    const [sortBy, setSortBy] = useState();
+    const [sortDirection, setSortDirection] = useState();
+    const [currentPage, setCurrentPage] = useState(products.current_page);
+    const [pageSize, setPageSize] = useState(products.per_page);
     const [selectedColumns, setSelectedColumns] = useState({
         description: true,
         group: true,
@@ -61,7 +67,7 @@ export default function Index({ auth, products, failures }) {
             ),
         },
         {
-            accessorKey: 'group.name',
+            id: 'group.name',
             header: ({ column }) => (
                 <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
                     {__('Group')}
@@ -172,6 +178,58 @@ export default function Index({ auth, products, failures }) {
                     title: __('Import completed'),
                 }),
         });
+    };
+
+    const handleFilterChange = (field, value) => {
+        setFilterBy(field);
+        setFilterValue(value);
+
+        router.visit(
+            route('products.index', {
+                filterBy: field,
+                filterValue: value,
+                sortBy,
+                sortDirection,
+                page: currentPage,
+                perPage: pageSize,
+            }),
+            { preserveState: true }
+        );
+    };
+
+    const handleSortChange = (field, desc) => {
+        const direction = desc ? 'desc' : 'asc';
+        setSortBy(field);
+        setSortDirection(direction);
+
+        router.visit(
+            route('products.index', {
+                filterBy,
+                filterValue,
+                sortBy: field,
+                sortDirection: direction,
+                page: currentPage,
+                perPage: pageSize,
+            }),
+            { preserveState: true }
+        );
+    };
+
+    const handlePageChange = (page, perPage) => {
+        setCurrentPage(page);
+        setPageSize(perPage);
+
+        router.visit(
+            route('products.index', {
+                filterBy,
+                filterValue,
+                sortBy,
+                sortDirection,
+                page,
+                perPage,
+            }),
+            { preserveState: true }
+        );
     };
 
     return (
@@ -350,7 +408,17 @@ export default function Index({ auth, products, failures }) {
                     </div>
                 )}
 
-                <DataTable data={products} columns={columns} filterBy="description" />
+                <DataTable
+                    data={products.data}
+                    columns={columns}
+                    filterBy="description"
+                    onFilterChange={handleFilterChange}
+                    onSortChange={handleSortChange}
+                    totalPages={products.last_page}
+                    onPageChange={handlePageChange}
+                    pageSize={pageSize}
+                    currentPage={currentPage}
+                />
             </div>
         </AuthenticatedLayout>
     );

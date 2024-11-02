@@ -2,7 +2,8 @@ import { useTraslations } from '@/Contexts/TranslationsContext';
 import { Button } from '@/Components/ui';
 import { DataTable } from '@/Components';
 import { ArrowUpDown } from 'lucide-react';
-import { Link } from '@inertiajs/react';
+import { Link, router } from '@inertiajs/react';
+import { useState } from 'react';
 
 export default function ShowStocktakingProducts({
     stocktakingId,
@@ -13,9 +14,16 @@ export default function ShowStocktakingProducts({
 }) {
     const { __ } = useTraslations();
 
+    const [filterBy, setFilterBy] = useState();
+    const [filterValue, setFilterValue] = useState();
+    const [sortBy, setSortBy] = useState();
+    const [sortDirection, setSortDirection] = useState();
+    const [currentPage, setCurrentPage] = useState(products.current_page);
+    const [pageSize, setPageSize] = useState(products.per_page);
+
     const columns = [
         {
-            accessorKey: 'group.name',
+            id: 'group.name',
             header: ({ column }) => (
                 <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
                     {__('Group')}
@@ -43,18 +51,19 @@ export default function ShowStocktakingProducts({
             ),
         },
         {
-            accessorKey: 'pivot.batch',
+            id: 'pivot.batch',
             header: <div className="uppercase">{__('Batch')}</div>,
             cell: ({ row }) => row.original.pivot.batch ?? '-',
         },
         {
-            accessorKey: 'pivot.expiry_date',
+            id: 'pivot.expiry_date',
             header: <div className="uppercase">{__('Expiry Date')}</div>,
             cell: ({ row }) => row.original.pivot.expiry_date ?? '-',
         },
         {
-            accessorKey: 'pivot.quantity',
+            id: 'pivot.quantity',
             header: <div className="uppercase">{__('Quantity')}</div>,
+            cell: ({ row }) => row.original.pivot.quantity ?? '-',
         },
         {
             accessorKey: 'price',
@@ -62,7 +71,7 @@ export default function ShowStocktakingProducts({
             cell: ({ row }) => row.original.price?.toLocaleString() ?? '-',
         },
         {
-            accessorKey: 'price',
+            accessorKey: 'total_price',
             header: <div className="uppercase">{__('Total')}</div>,
             cell: ({ row }) =>
                 row.original.price ? (row.original.price * row.original.pivot.quantity).toLocaleString() : '-',
@@ -76,6 +85,61 @@ export default function ShowStocktakingProducts({
                     : '-',
         },
     ];
+
+    const handleFilterChange = (field, value) => {
+        setFilterBy(field);
+        setFilterValue(value);
+
+        router.visit(
+            route('stocktakings.show', {
+                stocktaking: stocktakingId,
+                filterBy: field,
+                filterValue: value,
+                sortBy,
+                sortDirection,
+                page: currentPage,
+                perPage: pageSize,
+            }),
+            { preserveState: true }
+        );
+    };
+
+    const handleSortChange = (field, desc) => {
+        const direction = desc ? 'desc' : 'asc';
+        setSortBy(field);
+        setSortDirection(direction);
+
+        router.visit(
+            route('stocktakings.show', {
+                stocktaking: stocktakingId,
+                filterBy,
+                filterValue,
+                sortBy: field,
+                sortDirection: direction,
+                page: currentPage,
+                perPage: pageSize,
+            }),
+            { preserveState: true }
+        );
+    };
+
+    const handlePageChange = (page, perPage) => {
+        setCurrentPage(page);
+        setPageSize(perPage);
+
+        router.visit(
+            route('stocktakings.show', {
+                stocktaking: stocktakingId,
+                filterBy,
+                filterValue,
+                sortBy,
+                sortDirection,
+                page,
+                perPage,
+            }),
+            { preserveState: true }
+        );
+    };
 
     return (
         <section className={className}>
@@ -99,7 +163,17 @@ export default function ShowStocktakingProducts({
                 )}
             </header>
 
-            <DataTable data={products} columns={columns} filterBy="description" />
+            <DataTable
+                data={products.data}
+                columns={columns}
+                filterBy="description"
+                onFilterChange={handleFilterChange}
+                onSortChange={handleSortChange}
+                totalPages={products.last_page}
+                onPageChange={handlePageChange}
+                pageSize={pageSize}
+                currentPage={currentPage}
+            />
         </section>
     );
 }

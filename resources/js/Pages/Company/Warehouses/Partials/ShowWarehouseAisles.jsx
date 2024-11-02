@@ -14,9 +14,10 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@/Components/ui';
-import { Link } from '@inertiajs/react';
+import { Link, router } from '@inertiajs/react';
 import { DataTable } from '@/Components';
 import { ArrowUpDown, MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
+import { useState } from 'react';
 
 export default function ShowWarehouseAisles({
     warehouse_id,
@@ -28,9 +29,16 @@ export default function ShowWarehouseAisles({
 }) {
     const { __ } = useTraslations();
 
+    const [filterBy, setFilterBy] = useState();
+    const [filterValue, setFilterValue] = useState();
+    const [sortBy, setSortBy] = useState();
+    const [sortDirection, setSortDirection] = useState();
+    const [currentPage, setCurrentPage] = useState(aisles.current_page);
+    const [pageSize, setPageSize] = useState(aisles.per_page);
+
     const columns = [
         {
-            accessorKey: 'group.name',
+            id: 'group.name',
             header: ({ column }) => (
                 <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
                     {__('Group')}
@@ -139,6 +147,61 @@ export default function ShowWarehouseAisles({
         });
     }
 
+    const handleFilterChange = (field, value) => {
+        setFilterBy(field);
+        setFilterValue(value);
+
+        router.visit(
+            route('warehouses.show', {
+                warehouse: warehouse_id,
+                filterBy: field,
+                filterValue: value,
+                sortBy,
+                sortDirection,
+                page: currentPage,
+                perPage: pageSize,
+            }),
+            { preserveState: true }
+        );
+    };
+
+    const handleSortChange = (field, desc) => {
+        const direction = desc ? 'desc' : 'asc';
+        setSortBy(field);
+        setSortDirection(direction);
+
+        router.visit(
+            route('warehouses.show', {
+                warehouse: warehouse_id,
+                filterBy,
+                filterValue,
+                sortBy: field,
+                sortDirection: direction,
+                page: currentPage,
+                perPage: pageSize,
+            }),
+            { preserveState: true }
+        );
+    };
+
+    const handlePageChange = (page, perPage) => {
+        setCurrentPage(page);
+        setPageSize(perPage);
+
+        router.visit(
+            route('warehouses.show', {
+                warehouse: warehouse_id,
+                filterBy,
+                filterValue,
+                sortBy,
+                sortDirection,
+                page,
+                perPage,
+            }),
+            { preserveState: true }
+        );
+    };
+
     return (
         <section className={className}>
             <header>
@@ -153,7 +216,17 @@ export default function ShowWarehouseAisles({
                 )}
             </header>
 
-            <DataTable data={aisles} columns={columns} filterBy="code" />
+            <DataTable
+                data={aisles.data}
+                columns={columns}
+                filterBy="code"
+                onFilterChange={handleFilterChange}
+                onSortChange={handleSortChange}
+                totalPages={aisles.last_page}
+                onPageChange={handlePageChange}
+                pageSize={pageSize}
+                currentPage={currentPage}
+            />
         </section>
     );
 }

@@ -2,7 +2,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import ShowCompanyInformation from './Partials/ShowCompanyInformation';
 import ShowCompanyUsers from './Partials/ShowCompanyUsers';
 
-export default function Show({ auth, company }) {
+export default function Show({ auth, company, users }) {
     return (
         <AuthenticatedLayout user={auth.user} title={company.name}>
             <div className="space-y-6">
@@ -18,7 +18,7 @@ export default function Show({ auth, company }) {
                         canCreate={auth.user.permissions.some((per) => per.name === 'write users')}
                         canEdit={auth.user.permissions.some((per) => per.name === 'edit users')}
                         canDelete={auth.user.permissions.some((per) => per.name === 'delete users')}
-                        users={company.users}
+                        users={users}
                     />
                 </div>
             </div>

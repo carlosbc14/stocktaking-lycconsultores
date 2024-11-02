@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Company;
+use App\Traits\FilterAndSortTrait;
 use Freshwork\ChileanBundle\Rut;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -11,6 +12,8 @@ use Inertia\Response;
 
 class CompanyController extends Controller
 {
+    use FilterAndSortTrait;
+
     /**
      * Show the form for creating a new resource.
      */
@@ -59,9 +62,19 @@ class CompanyController extends Controller
     {
         $this->authorize('view', Company::class);
 
-        $company = Company::with(['users'])->findOrFail($request->user()->company->id);
+        $company = Company::findOrFail($request->user()->company->id);
 
-        $company->users->each(function ($user) use ($request) {
+        $perPage = $request->input('perPage', 10);
+
+        $query = $company->users();
+
+        $query = $this->applyFilters($request, $query);
+        $query = $this->applySorting($request, $query);
+
+        /** @var \Illuminate\Pagination\LengthAwarePaginator $users */
+        $users = $query->paginate($perPage);
+
+        $users->each(function ($user) use ($request) {
             $user->role = $user->roles->first();
             $user->makeHidden('roles');
             $user->permissions = [
@@ -72,6 +85,7 @@ class CompanyController extends Controller
 
         return Inertia::render('Company/Show', [
             'company' => $company,
+            'users' => $users->withQueryString(),
         ]);
     }
 

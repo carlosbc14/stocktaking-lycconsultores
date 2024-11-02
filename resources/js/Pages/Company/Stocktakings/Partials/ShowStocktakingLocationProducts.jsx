@@ -2,7 +2,8 @@ import { useTraslations } from '@/Contexts/TranslationsContext';
 import { Button, buttonVariants } from '@/Components/ui';
 import { DataTable } from '@/Components';
 import { ArrowUpDown } from 'lucide-react';
-import { Link } from '@inertiajs/react';
+import { Link, router } from '@inertiajs/react';
+import { useState } from 'react';
 
 export default function ShowStocktakingLocationProducts({
     stocktakingId,
@@ -12,8 +13,26 @@ export default function ShowStocktakingLocationProducts({
     className = '',
 }) {
     const { __ } = useTraslations();
+    console.log(products.data);
+
+    const [filterBy, setFilterBy] = useState();
+    const [filterValue, setFilterValue] = useState();
+    const [sortBy, setSortBy] = useState();
+    const [sortDirection, setSortDirection] = useState();
+    const [currentPage, setCurrentPage] = useState(products.current_page);
+    const [pageSize, setPageSize] = useState(products.per_page);
 
     const columns = [
+        {
+            id: 'group.name',
+            header: ({ column }) => (
+                <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
+                    {__('Group')}
+                    <ArrowUpDown className="ml-2 h-4 w-4" />
+                </Button>
+            ),
+            cell: ({ row }) => (row.original.group ? row.original.group.name : '-'),
+        },
         {
             accessorKey: 'code',
             header: ({ column }) => (
@@ -33,20 +52,79 @@ export default function ShowStocktakingLocationProducts({
             ),
         },
         {
-            accessorKey: 'pivot.batch',
+            id: 'pivot.batch',
             header: <div className="uppercase">{__('Batch')}</div>,
             cell: ({ row }) => row.original.pivot.batch ?? '-',
         },
         {
-            accessorKey: 'pivot.expiry_date',
+            id: 'pivot.expiry_date',
             header: <div className="uppercase">{__('Expiry Date')}</div>,
             cell: ({ row }) => row.original.pivot.expiry_date ?? '-',
         },
         {
-            accessorKey: 'pivot.quantity',
+            id: 'pivot.quantity',
             header: <div className="uppercase">{__('Quantity')}</div>,
+            cell: ({ row }) => row.original.pivot.quantity ?? '-',
         },
     ];
+
+    const handleFilterChange = (field, value) => {
+        setFilterBy(field);
+        setFilterValue(value);
+
+        router.visit(
+            route('stocktakings.showLocation', {
+                stocktaking: stocktakingId,
+                location: locationId,
+                filterBy: field,
+                filterValue: value,
+                sortBy,
+                sortDirection,
+                page: currentPage,
+                perPage: pageSize,
+            }),
+            { preserveState: true }
+        );
+    };
+
+    const handleSortChange = (field, desc) => {
+        const direction = desc ? 'desc' : 'asc';
+        setSortBy(field);
+        setSortDirection(direction);
+
+        router.visit(
+            route('stocktakings.showLocation', {
+                stocktaking: stocktakingId,
+                location: locationId,
+                filterBy,
+                filterValue,
+                sortBy: field,
+                sortDirection: direction,
+                page: currentPage,
+                perPage: pageSize,
+            }),
+            { preserveState: true }
+        );
+    };
+
+    const handlePageChange = (page, perPage) => {
+        setCurrentPage(page);
+        setPageSize(perPage);
+
+        router.visit(
+            route('stocktakings.showLocation', {
+                stocktaking: stocktakingId,
+                location: locationId,
+                filterBy,
+                filterValue,
+                sortBy,
+                sortDirection,
+                page,
+                perPage,
+            }),
+            { preserveState: true }
+        );
+    };
 
     return (
         <section className={className}>
@@ -68,7 +146,17 @@ export default function ShowStocktakingLocationProducts({
                 )}
             </header>
 
-            <DataTable data={products} columns={columns} filterBy="description" />
+            <DataTable
+                data={products.data}
+                columns={columns}
+                filterBy="description"
+                onFilterChange={handleFilterChange}
+                onSortChange={handleSortChange}
+                totalPages={products.last_page}
+                onPageChange={handlePageChange}
+                pageSize={pageSize}
+                currentPage={currentPage}
+            />
         </section>
     );
 }

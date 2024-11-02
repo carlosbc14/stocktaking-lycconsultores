@@ -1,11 +1,4 @@
-import {
-    flexRender,
-    getCoreRowModel,
-    getFilteredRowModel,
-    getPaginationRowModel,
-    getSortedRowModel,
-    useReactTable,
-} from '@tanstack/react-table';
+import { flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import {
     Button,
     Input,
@@ -26,26 +19,47 @@ import { useTraslations } from '@/Contexts/TranslationsContext';
 import { useState } from 'react';
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
 
-export function DataTable({ columns, data, filterBy }) {
+export function DataTable({
+    columns,
+    data,
+    filterBy,
+    onFilterChange,
+    onSortChange,
+    totalPages,
+    onPageChange,
+    pageSize,
+    currentPage,
+}) {
     const { __ } = useTraslations();
 
     const [sorting, setSorting] = useState([]);
     const [columnFilters, setColumnFilters] = useState([]);
     const [pagination, setPagination] = useState({
-        pageIndex: 0,
-        pageSize: 10,
+        pageIndex: currentPage - 1,
+        pageSize: pageSize,
     });
 
     const table = useReactTable({
         data,
         columns,
-        onSortingChange: setSorting,
-        onColumnFiltersChange: setColumnFilters,
-        onPaginationChange: setPagination,
+        onSortingChange: (getNewSorting) => {
+            const newSorting = getNewSorting(sorting);
+            setSorting(newSorting);
+            onSortChange(newSorting[0]?.id, newSorting[0]?.desc);
+        },
+        onColumnFiltersChange: (getNewColumnFilters) => {
+            const newColumnFilters = getNewColumnFilters(columnFilters);
+            setColumnFilters(newColumnFilters);
+            onFilterChange(newColumnFilters[0]?.id, newColumnFilters[0]?.value);
+        },
+        onPaginationChange: (getNewPagination) => {
+            const newPagination = getNewPagination(pagination);
+            setPagination(newPagination);
+            onPageChange(newPagination.pageIndex + 1, newPagination.pageSize);
+        },
         getCoreRowModel: getCoreRowModel(),
-        getPaginationRowModel: getPaginationRowModel(),
-        getSortedRowModel: getSortedRowModel(),
-        getFilteredRowModel: getFilteredRowModel(),
+        manualPagination: true,
+        pageCount: totalPages,
         state: {
             sorting,
             columnFilters,

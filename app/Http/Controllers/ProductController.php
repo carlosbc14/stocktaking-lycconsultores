@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use App\Traits\FilterAndSortTrait;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -13,6 +14,8 @@ use Spatie\SimpleExcel\SimpleExcelWriter;
 
 class ProductController extends Controller
 {
+    use FilterAndSortTrait;
+
     /**
      * Display a listing of the resource.
      */
@@ -20,8 +23,18 @@ class ProductController extends Controller
     {
         $this->authorize('viewAny', Product::class);
 
+        $perPage = $request->input('perPage', 10);
+
+        $query = $request->user()->company->products()->with('group');
+
+        $query = $this->applyFilters($request, $query);
+        $query = $this->applySorting($request, $query);
+
+        /** @var \Illuminate\Pagination\LengthAwarePaginator $products */
+        $products = $query->paginate($perPage);
+
         return Inertia::render('Company/Products/Index', [
-            'products' => $request->user()->company->products()->with('group')->get(),
+            'products' => $products->withQueryString(),
             'failures' => session('failures', []),
         ]);
     }

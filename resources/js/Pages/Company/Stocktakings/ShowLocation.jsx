@@ -2,7 +2,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import ShowStocktakingLocationProducts from './Partials/ShowStocktakingLocationProducts';
 import { useTraslations } from '@/Contexts/TranslationsContext';
 
-export default function ShowLocation({ auth, stocktaking, location }) {
+export default function ShowLocation({ auth, stocktaking, location, products }) {
     const { __ } = useTraslations();
 
     return (
@@ -17,7 +17,7 @@ export default function ShowLocation({ auth, stocktaking, location }) {
                     canReset={auth.user.permissions.some((per) => per.name === 'write stocktakings')}
                     stocktakingId={stocktaking.id}
                     locationId={location.id}
-                    products={location.products}
+                    products={products}
                 />
             </div>
         </AuthenticatedLayout>

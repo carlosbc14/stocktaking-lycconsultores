@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Warehouse;
+use App\Traits\FilterAndSortTrait;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -11,6 +12,8 @@ use Inertia\Response;
 
 class WarehouseController extends Controller
 {
+    use FilterAndSortTrait;
+
     /**
      * Display a listing of the resource.
      */
@@ -18,8 +21,18 @@ class WarehouseController extends Controller
     {
         $this->authorize('viewAny', Warehouse::class);
 
+        $perPage = $request->input('perPage', 10);
+
+        $query = $request->user()->company->warehouses();
+
+        $query = $this->applyFilters($request, $query);
+        $query = $this->applySorting($request, $query);
+
+        /** @var \Illuminate\Pagination\LengthAwarePaginator $warehouses */
+        $warehouses = $query->paginate($perPage);
+
         return Inertia::render('Company/Warehouses/Index', [
-            'warehouses' => $request->user()->company->warehouses,
+            'warehouses' => $warehouses->withQueryString(),
         ]);
     }
 
@@ -59,12 +72,23 @@ class WarehouseController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Warehouse $warehouse): Response
+    public function show(Request $request, Warehouse $warehouse): Response
     {
         $this->authorize('view', $warehouse);
 
+        $perPage = $request->input('perPage', 10);
+
+        $query = $warehouse->aisles()->with(['locations', 'group']);
+
+        $query = $this->applyFilters($request, $query);
+        $query = $this->applySorting($request, $query);
+
+        /** @var \Illuminate\Pagination\LengthAwarePaginator $aisles */
+        $aisles = $query->paginate($perPage);
+
         return Inertia::render('Company/Warehouses/Show', [
-            'warehouse' => $warehouse->load(['aisles.locations', 'aisles.group']),
+            'warehouse' => $warehouse,
+            'aisles' => $aisles->withQueryString(),
         ]);
     }
 
