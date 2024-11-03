@@ -10,7 +10,9 @@ export default function Dashboard({ auth }) {
         <AuthenticatedLayout user={auth.user} title={__('Dashboard')}>
             <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div className="flex flex-1 flex-col text-center p-6 text-gray-900">
-                    <h2 className="font-bold text-4xl">{__('¡Welcome to Stocktaking LYC Consultores!')}</h2>
+                    <h2 className="font-bold text-4xl">
+                        {__('¡Welcome :name to Stocktaking App!', { name: auth.user.name })}
+                    </h2>
                     {auth.user.company_id !== null ||
                         !auth.user.permissions.some((per) => per.name === 'write company') || (
                             <>
