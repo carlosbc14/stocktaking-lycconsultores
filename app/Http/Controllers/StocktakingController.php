@@ -240,19 +240,29 @@ class StocktakingController extends Controller
 
         $rows = [];
 
-        $formattedDate = str_replace('/', '-', $stocktaking->created_at->isoFormat('L'));
+        $rows[] = ['', '', '', strtoupper(__('Inventory Reporting'))];
+        $rows[] = [];
 
+        $companyInfo = [
+            __('Company') => $request->user()->company->name,
+            __('RUT') => $request->user()->company->rut,
+            __('Address') => $request->user()->company->address,
+        ];
+        foreach ($companyInfo as $key => $value) $rows[] = ['', $key, $value];
+        $rows[] = [];
+
+        $formattedDate = str_replace('/', '-', $stocktaking->created_at->isoFormat('L'));
         $stocktakingInfo = [
-            __('Document Number') => $stocktaking->id,
+            __('Number') => $stocktaking->id,
             __('Warehouse') => $stocktaking->warehouse->name . ' (' . $stocktaking->warehouse->code . ')',
             __('Date') => $formattedDate,
-            __('User') => $request->user()->name,
+            __('User') => $stocktaking->user->name,
         ];
-
-        foreach ($stocktakingInfo as $key => $value) $rows[] = [$key, $value];
+        foreach ($stocktakingInfo as $key => $value) $rows[] = ['', $key, $value];
 
         $rows[] = [];
         $rows[] = [
+            '',
             __('Group'),
             __('Code'),
             __('Description'),
@@ -266,9 +276,12 @@ class StocktakingController extends Controller
         ];
 
         $totalPrice = 0;
+        $iteration = 0;
+        $stocktaking->products()->get()->each(function ($product) use (&$rows, &$totalPrice, &$iteration) {
+            $iteration++;
 
-        $stocktaking->products()->get()->each(function ($product) use (&$rows, &$totalPrice) {
             $rows[] = [
+                $iteration,
                 $product['group'] ? $product['group']['name'] : '-',
                 $product['code'],
                 $product['description'],
@@ -283,10 +296,9 @@ class StocktakingController extends Controller
 
             $totalPrice += $product['price'] * $product['pivot']['quantity'];
         });
+        $rows[] = ['', '', '', '', '', '', '', __('Total'), $totalPrice];
 
-        $rows[] = ['', '', '', '', '', '', __('Total'), $totalPrice, ''];
-
-        SimpleExcelWriter::streamDownload(__('Stocktaking') . ' ' . $formattedDate . '.xlsx')->noHeaderRow()->addRows($rows);
+        SimpleExcelWriter::streamDownload(__('Stocktaking') . ' ' . $formattedDate . ' ' . $request->user()->company->name . '.xlsx')->noHeaderRow()->addRows($rows);
     }
 
     /**
