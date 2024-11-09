@@ -149,19 +149,17 @@ export default function ShowStocktakingProducts({
             <header>
                 <h2 className="text-lg font-medium text-gray-900">{__('Stocktaking Products')}</h2>
 
-                <div className="flex justify-end">
+                <div className="flex justify-end gap-4">
                     <a href={route('stocktakings.export', stocktakingId)}>
                         <Button>{__('Export :name', { name: __('stocktaking') })}</Button>
                     </a>
-                </div>
 
-                {canCreate && !stocktakingFinished && (
-                    <div className="flex justify-end">
+                    {canCreate && !stocktakingFinished && (
                         <Link href={route('stocktakings.selectLocation', stocktakingId)}>
                             <Button>{__('Continue :name', { name: __('stocktaking') })}</Button>
                         </Link>
-                    </div>
-                )}
+                    )}
+                </div>
             </header>
 
             <DataTable
