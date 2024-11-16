@@ -9,10 +9,10 @@ export function SideBar({ links, className = '' }) {
     return (
         <nav className={cn('bg-white border-r border-gray-100', className)}>
             <div className="flex items-center h-16 px-4">
-                <Link href={route('dashboard')}>
+                <Link href={route('dashboard')} className="mx-auto">
                     <div className="text-gray-400 text-2xl">
                         <strong>
-                            Stock<span className="text-primary">taking</span>
+                            Inventario <span className="text-primary">App</span>
                         </strong>
                     </div>
                 </Link>

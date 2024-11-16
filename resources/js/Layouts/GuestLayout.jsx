@@ -13,7 +13,7 @@ export default function Guest({ title, children }) {
             <main className="flex flex-1 flex-col sm:justify-center items-center pt-6 sm:pt-0">
                 <div className="text-gray-400 text-4xl">
                     <strong>
-                        Stock<span className="text-primary">taking</span>
+                        Inventario <span className="text-primary">App</span>
                     </strong>
                 </div>
 

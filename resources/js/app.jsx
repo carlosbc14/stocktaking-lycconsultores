@@ -7,7 +7,7 @@ import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { TraslationsProvider } from './Contexts/TranslationsContext';
 import { Toaster } from './Components/ui';
 
-const appName = import.meta.env.VITE_APP_NAME || 'Stocktaking';
+const appName = import.meta.env.VITE_APP_NAME || 'Inventario';
 
 createInertiaApp({
     title: (title) => `${title} - ${appName}`,
