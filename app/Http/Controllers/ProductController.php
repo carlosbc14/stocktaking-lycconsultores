@@ -190,29 +190,29 @@ class ProductController extends Controller
         $rows->each(function (array $row, int $key) use ($company_id, $groups, $trad, &$failures) {
             $data = array_filter([
                 'description' => empty($row[$trad['description']])
-                    ? null : $row[$trad['description']],
+                    ? null : trim($row[$trad['description']]),
                 'unit' => empty($row[$trad['unit']])
-                    ? null : $row[$trad['unit']],
+                    ? null : trim($row[$trad['unit']]),
                 'origin' => empty($row[$trad['origin']])
-                    ? null : $row[$trad['origin']],
+                    ? null : trim($row[$trad['origin']]),
                 'currency' => empty($row[$trad['currency']])
-                    ? null : $row[$trad['currency']],
+                    ? null : trim($row[$trad['currency']]),
                 'price' => empty($row[$trad['price']])
                     ? null : $row[$trad['price']],
                 'batch' => empty($row[$trad['batch']])
-                    ? null : $row[$trad['batch']] == $trad['yes'][0],
+                    ? null : trim($row[$trad['batch']]) == $trad['yes'][0],
                 'expiry_date' => empty($row[$trad['expiry_date']])
-                    ? null : $row[$trad['expiry_date']] == $trad['yes'][0],
+                    ? null : trim($row[$trad['expiry_date']]) == $trad['yes'][0],
                 'enabled' => empty($row[$trad['enabled']])
-                    ? null : $row[$trad['enabled']] == $trad['yes'][0],
-                'group_id' => empty($row[$trad['group']]) || empty($groups[$row[$trad['group']]])
-                    ? null : $groups[$row[$trad['group']]],
+                    ? null : trim($row[$trad['enabled']]) == $trad['yes'][0],
+                'group_id' => empty($row[$trad['group']]) || empty($groups[trim($row[$trad['group']])])
+                    ? null : $groups[trim($row[$trad['group']])],
             ], fn($value) => !is_null($value) && $value !== '');
 
             try {
                 Product::updateOrCreate([
                     'code' => empty($row[$trad['code']])
-                        ? null : $row[$trad['code']],
+                        ? null : trim($row[$trad['code']]),
                     'company_id' => $company_id,
                 ], $data);
             } catch (\Throwable $th) {
