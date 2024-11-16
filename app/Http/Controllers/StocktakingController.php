@@ -251,14 +251,16 @@ class StocktakingController extends Controller
         foreach ($companyInfo as $key => $value) $rows[] = ['', $key, $value];
         $rows[] = [];
 
-        $formattedDate = str_replace('/', '-', $stocktaking->created_at->isoFormat('L'));
+        $startDate = str_replace('/', '-', $stocktaking->created_at->isoFormat('L'));
+        $endDate = $stocktaking->finished_at ? str_replace('/', '-', $stocktaking->finished_at->isoFormat('L')) : '-';
+        $exportDate = str_replace('/', '-', now()->isoFormat('L'));
         $stocktakingInfo = [
             __('Number') => $stocktaking->id,
             __('Warehouse') => $stocktaking->warehouse->name . ' (' . $stocktaking->warehouse->code . ')',
-            __('Date') => $formattedDate,
-            __('User') => $stocktaking->user->name,
+            __('User in Charge') => $stocktaking->user->name,
         ];
         foreach ($stocktakingInfo as $key => $value) $rows[] = ['', $key, $value];
+        $rows[] = ['', __('Start Date'), $startDate, '',  __('End Date'), $endDate, '', __('Export Date'), $exportDate];
 
         $rows[] = [];
         $rows[] = [
@@ -298,7 +300,7 @@ class StocktakingController extends Controller
         });
         $rows[] = ['', '', '', '', '', '', '', __('Total'), $totalPrice];
 
-        SimpleExcelWriter::streamDownload(__('Stocktaking') . ' ' . $formattedDate . ' ' . $request->user()->company->name . '.xlsx')->noHeaderRow()->addRows($rows);
+        SimpleExcelWriter::streamDownload(__('Stocktaking') . ' ' . $exportDate . ' ' . $request->user()->company->name . '.xlsx')->noHeaderRow()->addRows($rows);
     }
 
     /**

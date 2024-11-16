@@ -17,6 +17,10 @@ class Stocktaking extends Model
         'finished_at',
     ];
 
+    protected $casts = [
+        'finished_at' => 'datetime',
+    ];
+
     public function user()
     {
         return $this->belongsTo(User::class);
