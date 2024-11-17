@@ -11,7 +11,7 @@ export default function Dashboard({ auth }) {
             <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div className="flex flex-1 flex-col text-center p-6 text-gray-900">
                     <h2 className="font-bold text-4xl">
-                        {__('¡Welcome :name to Stocktaking App!', { name: auth.user.name })}
+                        {__('¡Welcome :name to :app!', { name: auth.user.name, app: 'Inventario Digital' })}
                     </h2>
                     {auth.user.company_id !== null ||
                         !auth.user.permissions.some((per) => per.name === 'write company') || (

@@ -12,7 +12,7 @@ export function SideBar({ links, className = '' }) {
                 <Link href={route('dashboard')} className="mx-auto">
                     <div className="text-gray-400 text-2xl">
                         <strong>
-                            Inventario <span className="text-primary">App</span>
+                            Inventario <span className="text-primary">Digital</span>
                         </strong>
                     </div>
                 </Link>
