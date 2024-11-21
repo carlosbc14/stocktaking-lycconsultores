@@ -221,8 +221,12 @@ class StocktakingController extends Controller
         /** @var \Illuminate\Pagination\LengthAwarePaginator $products */
         $products = $query->paginate($perPage);
 
-        $products->each(function ($product) {
+        $products->each(function ($product) use ($request) {
             $product->pivot->load('location.aisle');
+
+            if ($request->user()->hasRole('operator') || $request->user()->hasRole('lead_operator')) {
+                unset($product->price);
+            }
         });
 
         return Inertia::render('Company/Stocktakings/Show', [

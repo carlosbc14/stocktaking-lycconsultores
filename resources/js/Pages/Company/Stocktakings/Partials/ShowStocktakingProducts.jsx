@@ -68,17 +68,23 @@ export default function ShowStocktakingProducts({
             header: <div className="uppercase">{__('Quantity')}</div>,
             cell: ({ row }) => row.original.pivot.quantity ?? '-',
         },
-        {
-            accessorKey: 'price',
-            header: <div className="uppercase">{__('Unit Price')}</div>,
-            cell: ({ row }) => row.original.price?.toLocaleString(locale) ?? '-',
-        },
-        {
-            accessorKey: 'total_price',
-            header: <div className="uppercase">{__('Total')}</div>,
-            cell: ({ row }) =>
-                row.original.price ? (row.original.price * row.original.pivot.quantity).toLocaleString(locale) : '-',
-        },
+        ...(products.data.some((product) => product.price !== undefined)
+            ? [
+                  {
+                      accessorKey: 'price',
+                      header: <div className="uppercase">{__('Unit Price')}</div>,
+                      cell: ({ row }) => row.original.price?.toLocaleString(locale) ?? '-',
+                  },
+                  {
+                      accessorKey: 'total_price',
+                      header: <div className="uppercase">{__('Total')}</div>,
+                      cell: ({ row }) =>
+                          row.original.price
+                              ? (row.original.price * row.original.pivot.quantity).toLocaleString(locale)
+                              : '-',
+                  },
+              ]
+            : []),
         {
             accessorKey: 'location',
             header: <div className="uppercase">{__('Location')}</div>,
