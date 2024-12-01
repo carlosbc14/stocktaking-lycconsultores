@@ -212,7 +212,7 @@ class ProductController extends Controller
             try {
                 Product::updateOrCreate([
                     'code' => empty($row[$trad['code']])
-                        ? null : trim($row[$trad['code']]),
+                        ? null : str_replace("'", '', trim($row[$trad['code']])),
                     'company_id' => $company_id,
                 ], $data);
             } catch (\Throwable $th) {
