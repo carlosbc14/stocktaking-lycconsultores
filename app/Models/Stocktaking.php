@@ -43,4 +43,12 @@ class Stocktaking extends Model
             ->withPivot('id', 'location_id', 'batch', 'expiry_date', 'quantity')
             ->withTimestamps();
     }
+
+    public function stockProducts()
+    {
+        return $this->belongsToMany(Product::class, 'product_stock')
+            ->using(ProductStock::class)
+            ->withPivot('id', 'batch', 'expiry_date', 'stock')
+            ->withTimestamps();
+    }
 }

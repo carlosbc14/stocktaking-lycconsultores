@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Location;
 use App\Models\Product;
+use App\Models\ProductStock;
 use App\Models\ProductStocktaking;
 use App\Models\Stocktaking;
 use App\Traits\FilterAndSortTrait;
@@ -12,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
+use Spatie\SimpleExcel\SimpleExcelReader;
 use Spatie\SimpleExcel\SimpleExcelWriter;
 
 class StocktakingController extends Controller
@@ -305,6 +307,115 @@ class StocktakingController extends Controller
         $rows[] = ['', '', '', '', '', '', '', __('Total'), $totalPrice];
 
         SimpleExcelWriter::streamDownload(__('Stocktaking') . ' ' . $exportDate . ' ' . $request->user()->company->name . '.xlsx')->noHeaderRow()->addRows($rows);
+    }
+
+    public function stock(Request $request, Stocktaking $stocktaking): Response
+    {
+        $this->authorize('viewAny', Stocktaking::class);
+
+        $perPage = $request->input('perPage', 10);
+
+        $query = $stocktaking->stockProducts()->with('group');
+
+        $query = $this->applyFilters($request, $query);
+        $query = $this->applySorting($request, $query);
+
+        /** @var \Illuminate\Pagination\LengthAwarePaginator $products */
+        $products = $query->paginate($perPage);
+
+        return Inertia::render('Company/Stocktakings/Stock', [
+            'stocktakingId' => $stocktaking->id,
+            'products' => $products->withQueryString(),
+        ]);
+    }
+
+    public function exportComparison(Stocktaking $stocktaking): void
+    {
+        $this->authorize('update', $stocktaking);
+
+        $header = [
+            __('Group'),
+            __('Code'),
+            __('Description'),
+            __('Warehouses Code'),
+            __('Warehouse'),
+            __('Batch'),
+            __('Expiry Date'),
+            __('Unit'),
+            __('Stock'),
+            __('Stocktaking'),
+            __('Difference'),
+        ];
+
+        $rows = [];
+        $stocktaking->products()->with('group')->get()->each(function ($product) use (&$rows, $stocktaking) {
+            $product->pivot->load('location.aisle.warehouse');
+            $stockProduct = ProductStock::where('product_id', $product['id'])->where('stocktaking_id', $stocktaking->id)->first();
+
+            $rows[] = [
+                $product['group'] ? $product['group']['name'] : '-',
+                $product['code'],
+                $product['description'],
+                $product['pivot']['location']['aisle']['warehouse']['code'],
+                $product['pivot']['location']['aisle']['warehouse']['name'],
+                $product['batch'] ? $product['pivot']['batch'] : '-',
+                $product['expiry_date'] ? $product['pivot']['expiry_date'] : '-',
+                $product['unit'] ?? '-',
+                $stockProduct['stock'] ?? 0,
+                $product['pivot']['quantity'],
+                ($stockProduct['stock'] ?? 0) - $product['pivot']['quantity'],
+            ];
+        });
+
+        SimpleExcelWriter::streamDownload('stocktaking_comparison.xlsx')->addHeader($header)->addRows($rows);
+    }
+
+    public function importStock(Request $request, Stocktaking $stocktaking): RedirectResponse
+    {
+        $this->authorize('update', $stocktaking);
+
+        $request->validate([
+            'excel' => 'required|file|mimes:xlsx',
+        ]);
+
+        $company_id = $request->user()->company_id;
+        $trad = [
+            'code' => __('Code'),
+            'batch' => __('Batch'),
+            'expiry_date' => __('Expiry Date'),
+            'stock' => __('Stock'),
+        ];
+        $failures = [];
+
+        $rows = SimpleExcelReader::create($request->excel, 'xlsx')->getRows();
+        $rows->each(function (array $row, int $key) use ($company_id, $stocktaking, $trad, &$failures) {
+            $data = array_filter([
+                'batch' => empty($row[$trad['batch']])
+                    ? null : trim($row[$trad['batch']]),
+                'expiry_date' => empty($row[$trad['expiry_date']])
+                    ? null : trim($row[$trad['expiry_date']]),
+                'stock' => empty($row[$trad['stock']])
+                    ? null : trim($row[$trad['stock']]),
+            ], fn($value) => !is_null($value) && $value !== '');
+
+            try {
+                $product = Product::where('company_id', $company_id)->where('code', $row[$trad['code']])->first();
+                $stocktaking->stockProducts()->attach($product->id, $data);
+            } catch (\Throwable $th) {
+                $failures[] = $key + 2;
+            }
+        });
+
+        return redirect(route('stocktakings.stock', $stocktaking->id))->with('failures', $failures);
+    }
+
+    public function resetStock(Stocktaking $stocktaking): RedirectResponse
+    {
+        $this->authorize('update', $stocktaking);
+
+        ProductStock::where('stocktaking_id', $stocktaking->id)->delete();
+
+        return redirect(route('stocktakings.stock', $stocktaking->id));
     }
 
     /**

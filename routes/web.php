@@ -66,6 +66,10 @@ Route::middleware(LocaleCookie::class)->group(function () {
         Route::post('/stocktakings/{stocktaking}/reset-location/{location}', [StocktakingController::class, 'resetLocation'])->name('stocktakings.resetLocation');
         Route::post('stocktakings/{stocktaking}/finalize', [StocktakingController::class, 'finalize'])->name('stocktakings.finalize');
         Route::get('/stocktakings/{stocktaking}/export', [StocktakingController::class, 'export'])->name('stocktakings.export');
+        Route::get('/stocktakings/{stocktaking}/stock', [StocktakingController::class, 'stock'])->name('stocktakings.stock');
+        Route::post('/stocktakings/{stocktaking}/stock/import', [StocktakingController::class, 'importStock'])->name('stocktakings.importStock');
+        Route::get('/stocktakings/{stocktaking}/stock/export', [StocktakingController::class, 'exportComparison'])->name('stocktakings.exportComparison');
+        Route::post('/stocktakings/{stocktaking}/stock/reset', [StocktakingController::class, 'resetStock'])->name('stocktakings.resetStock');
         Route::get('/api/stocktakings/scan/{code}', [StocktakingController::class, 'scan'])->name('stocktakings.scan');
     });
 

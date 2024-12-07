@@ -156,6 +156,10 @@ export default function ShowStocktakingProducts({
                 <h2 className="text-lg font-medium text-gray-900">{__('Stocktaking Products')}</h2>
 
                 <div className="flex justify-end gap-4">
+                    <Link href={route('stocktakings.stock', stocktakingId)}>
+                        <Button>{__('Load :name', { name: __('stock products') })}</Button>
+                    </Link>
+
                     <a href={route('stocktakings.export', stocktakingId)}>
                         <Button>{__('Export :name', { name: __('stocktaking') })}</Button>
                     </a>
