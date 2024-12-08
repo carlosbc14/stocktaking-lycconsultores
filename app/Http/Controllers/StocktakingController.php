@@ -393,7 +393,11 @@ class StocktakingController extends Controller
                 'batch' => empty($row[$trad['batch']])
                     ? null : trim($row[$trad['batch']]),
                 'expiry_date' => empty($row[$trad['expiry_date']])
-                    ? null : trim($row[$trad['expiry_date']]),
+                    ? null : (
+                        $row[$trad['expiry_date']] instanceof string
+                        ? trim($row[$trad['expiry_date']])
+                        : $row[$trad['expiry_date']]
+                    ),
                 'stock' => empty($row[$trad['stock']])
                     ? null : trim($row[$trad['stock']]),
             ], fn($value) => !is_null($value) && $value !== '');
