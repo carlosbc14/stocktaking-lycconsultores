@@ -326,6 +326,7 @@ class StocktakingController extends Controller
         return Inertia::render('Company/Stocktakings/Stock', [
             'stocktakingId' => $stocktaking->id,
             'products' => $products->withQueryString(),
+            'failures' => session('failures', []),
         ]);
     }
 
