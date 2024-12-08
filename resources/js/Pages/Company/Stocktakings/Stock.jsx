@@ -88,6 +88,7 @@ export default function Stock({ auth, stocktakingId, products, failures }) {
 
         router.visit(
             route('stocktakings.stock', {
+                stocktaking: stocktakingId,
                 filterBy: field,
                 filterValue: value,
                 sortBy,
@@ -106,6 +107,7 @@ export default function Stock({ auth, stocktakingId, products, failures }) {
 
         router.visit(
             route('stocktakings.stock', {
+                stocktaking: stocktakingId,
                 filterBy,
                 filterValue,
                 sortBy: field,
@@ -123,6 +125,7 @@ export default function Stock({ auth, stocktakingId, products, failures }) {
 
         router.visit(
             route('stocktakings.stock', {
+                stocktaking: stocktakingId,
                 filterBy,
                 filterValue,
                 sortBy,
