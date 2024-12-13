@@ -344,7 +344,7 @@ class StocktakingController extends Controller
             __('Expiry Date'),
             __('Unit'),
             __('Stock'),
-            __('Stocktaking'),
+            __('Inventory'),
             __('Difference'),
         ];
 
@@ -364,7 +364,7 @@ class StocktakingController extends Controller
                 $product['unit'] ?? '-',
                 $stockProduct['stock'] ?? 0,
                 $product['pivot']['quantity'],
-                ($stockProduct['stock'] ?? 0) - $product['pivot']['quantity'],
+                $product['pivot']['quantity'] - ($stockProduct['stock'] ?? 0),
             ];
         });
 
