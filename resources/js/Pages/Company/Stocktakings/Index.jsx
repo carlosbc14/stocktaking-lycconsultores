@@ -30,6 +30,7 @@ export default function Index({ auth, stocktakings }) {
     const [sortDirection, setSortDirection] = useState();
     const [currentPage, setCurrentPage] = useState(stocktakings.current_page);
     const [pageSize, setPageSize] = useState(stocktakings.per_page);
+    const [selectedRows, setSelectedRows] = useState([]);
 
     const canCreate = auth.user.permissions.some((per) => per.name === 'write stocktakings');
     const canEdit = auth.user.permissions.some((per) => per.name === 'edit stocktakings');
@@ -212,7 +213,13 @@ export default function Index({ auth, stocktakings }) {
         <AuthenticatedLayout user={auth.user} title={__('Stocktakings')}>
             <div className="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
                 {canCreate && (
-                    <div className="flex justify-end mb-6">
+                    <div className="flex justify-end gap-4 mb-6">
+                        {selectedRows.length > 0 && (
+                            <a href={route('stocktakings.multiExport', { stocktaking_ids: selectedRows })}>
+                                <Button>{__('Export :name', { name: __('Stocktakings') })}</Button>
+                            </a>
+                        )}
+
                         <Link href={route('stocktakings.create')}>
                             <Button>{__('Add :name', { name: __('stocktaking') })}</Button>
                         </Link>
@@ -229,6 +236,8 @@ export default function Index({ auth, stocktakings }) {
                     onPageChange={handlePageChange}
                     pageSize={pageSize}
                     currentPage={currentPage}
+                    onSelectedRows={setSelectedRows}
+                    selectColumn={true}
                 />
             </div>
         </AuthenticatedLayout>

@@ -58,6 +58,7 @@ Route::middleware(LocaleCookie::class)->group(function () {
         Route::get('/products/export', [ProductController::class, 'export'])->name('products.export');
         Route::post('/products/import', [ProductController::class, 'import'])->name('products.import');
 
+        Route::get('/stocktakings/multi-export', [StocktakingController::class, 'multiExport'])->name('stocktakings.multiExport');
         Route::resource('/stocktakings', StocktakingController::class);
         Route::get('/stocktakings/{stocktaking}/select-location', [StocktakingController::class, 'selectLocation'])->name('stocktakings.selectLocation');
         Route::get('/stocktakings/{stocktaking}/run/{location}', [StocktakingController::class, 'run'])->name('stocktakings.run');

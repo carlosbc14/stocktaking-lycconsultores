@@ -309,6 +309,100 @@ class StocktakingController extends Controller
         SimpleExcelWriter::streamDownload(__('Stocktaking') . ' ' . $exportDate . ' ' . $request->user()->company->name . '.xlsx')->noHeaderRow()->addRows($rows);
     }
 
+    /**
+     * Export the multi resource.
+     */
+    public function multiExport(Request $request): void
+    {
+        $stocktaking_ids = $request->query('stocktaking_ids', []);
+
+        $this->authorize('viewAny', Stocktaking::class);
+
+        $rows = [];
+
+        $rows[] = ['', '', '', strtoupper(__('Inventory Reporting'))];
+        $rows[] = [];
+
+        $companyInfo = [
+            __('Company') => $request->user()->company->name,
+            __('RUT') => $request->user()->company->rut,
+            __('Address') => $request->user()->company->address,
+        ];
+        foreach ($companyInfo as $key => $value) $rows[] = ['', $key, $value];
+        $rows[] = [];
+
+        $rows[] = [
+            '',
+            __('Group'),
+            __('Code'),
+            __('Description'),
+            __('Batch'),
+            __('Expiry Date'),
+            __('Quantity'),
+            __('Unit Price'),
+            __('Total'),
+            __('Warehouse'),
+            __('Location'),
+            __('Aisle Group'),
+        ];
+
+        $totalPrice = 0;
+        $iteration = 0;
+        $stocktakings = $request->user()->company->stocktakings()
+            ->with(['user', 'warehouse', 'products'])
+            ->whereIn('id', $stocktaking_ids)
+            ->get();
+
+        $groupedProducts = [];
+
+        $stocktakings->each(function ($stocktaking) use (&$groupedProducts) {
+            $stocktaking->products->each(function ($product) use (&$groupedProducts, $stocktaking) {
+                $key = $product->id . '-';
+                $key .= ($product->pivot->location_id ?? 'null') . '-';
+                $key .= ($product->pivot->batch ?? 'null') . '-';
+                $key .= ($product->pivot->expiry_date ?? 'null');
+
+                if (!isset($groupedProducts[$key])) {
+                    $groupedProducts[$key] = [
+                        'product' => $product,
+                        'warehouse' => $stocktaking->warehouse,
+                        'total_quantity' => 0,
+                    ];
+                }
+
+                $groupedProducts[$key]['total_quantity'] += $product->pivot->quantity;
+            });
+        });
+
+        foreach ($groupedProducts as $data) {
+            $product = $data['product'];
+            $warehouse = $data['warehouse'];
+            $quantity = $data['total_quantity'];
+
+            $iteration++;
+
+            $rows[] = [
+                $iteration,
+                $product['group'] ? $product['group']['name'] : '-',
+                $product['code'],
+                $product['description'],
+                $product['batch'] ? $product['pivot']['batch'] : '-',
+                $product['expiry_date'] ? $product['pivot']['expiry_date'] : '-',
+                $quantity,
+                $product['price'] ?? 0,
+                $product['price'] * $quantity,
+                $warehouse ? $warehouse['name'] : '-',
+                $product['pivot']['location']['aisle']['code'] . '-' . $product['pivot']['location']['column'] . '-' . $product['pivot']['location']['row'],
+                $product['pivot']['location']['aisle']['group'] ? $product['pivot']['location']['aisle']['group']['name'] : '',
+            ];
+
+            $totalPrice += $product['price'] * $quantity;
+        }
+        $rows[] = ['', '', '', '', '', '', '', __('Total'), $totalPrice];
+
+        SimpleExcelWriter::streamDownload(__('Stocktakings') . ' ' . $request->user()->company->name . '.xlsx')->noHeaderRow()->addRows($rows);
+    }
+
     public function stock(Request $request, Stocktaking $stocktaking): Response
     {
         $this->authorize('viewAny', Stocktaking::class);

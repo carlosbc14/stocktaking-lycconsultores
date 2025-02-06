@@ -16,8 +16,9 @@ import {
     TableRow,
 } from './ui';
 import { useTraslations } from '@/Contexts/TranslationsContext';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
+import { Checkbox } from './Checkbox';
 
 export function DataTable({
     columns,
@@ -29,6 +30,8 @@ export function DataTable({
     onPageChange,
     pageSize,
     currentPage,
+    onSelectedRows,
+    selectColumn = false,
 }) {
     const { locale, __ } = useTraslations();
 
@@ -38,6 +41,26 @@ export function DataTable({
         pageIndex: currentPage - 1,
         pageSize: pageSize,
     });
+    const [rowSelection, setRowSelection] = useState({});
+
+    if (selectColumn)
+        columns.unshift({
+            id: 'select',
+            header: ({ table }) => (
+                <Checkbox
+                    checked={table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && 'indeterminate')}
+                    onChange={(e) => table.toggleAllPageRowsSelected(!!e.target.checked)}
+                    aria-label="Select all"
+                />
+            ),
+            cell: ({ row }) => (
+                <Checkbox
+                    checked={row.getIsSelected()}
+                    onChange={(e) => row.toggleSelected(!!e.target.checked)}
+                    aria-label="Select row"
+                />
+            ),
+        });
 
     const table = useReactTable({
         data,
@@ -57,15 +80,25 @@ export function DataTable({
             setPagination(newPagination);
             onPageChange(newPagination.pageIndex + 1, newPagination.pageSize);
         },
+        onRowSelectionChange: setRowSelection,
         getCoreRowModel: getCoreRowModel(),
+        getRowId: (row) => row.id,
         manualPagination: true,
         pageCount: totalPages,
         state: {
             sorting,
             columnFilters,
             pagination,
+            rowSelection,
         },
     });
+
+    useEffect(() => {
+        if (onSelectedRows) {
+            const selectedRows = table.getSelectedRowModel().rows.map((row) => row.original.id);
+            onSelectedRows(selectedRows);
+        }
+    }, [rowSelection]);
 
     return (
         <div className="w-full">
